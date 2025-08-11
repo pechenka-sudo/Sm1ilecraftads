@@ -3,101 +3,111 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ZenoBank — Игровой кошелёк</title>
+<title>Zenobank — твой цифровой банк</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="app">
-
-  <!-- Стартовый экран -->
-  <section id="start-screen" class="center-screen">
-    <h1>ZenoBank</h1>
-    <div class="btn-group">
-      <button id="btn-show-login">Вход</button>
-      <button id="btn-show-signup">Регистрация</button>
+<header>
+  <div class="logo">Zenobank</div>
+  <nav>
+    <button id="btn-show-login" class="nav-btn">Войти</button>
+    <button id="btn-show-signup" class="nav-btn">Регистрация</button>
+    <div id="user-info" class="user-info hidden">
+      <span id="user-nickname" class="nickname"></span>
+      <span class="balance">Баланс: <span id="user-balance">0</span> ₽</span>
+      <span class="address">Адрес: <span id="user-address"></span></span>
+      <button id="btn-logout" class="nav-btn logout-btn" title="Выйти">⏻</button>
     </div>
-  </section>
+  </nav>
+</header>
 
-  <!-- Регистрация многошаговая -->
-  <section id="signup-section" class="center-screen hidden">
+<main>
+  <!-- Регистрация -->
+  <section id="signup-section" class="auth-section hidden">
     <h2>Регистрация</h2>
-    <form id="signup-form">
-      <div class="step step-1">
-        <label>Email:<input type="email" id="signup-email" required autocomplete="off" /></label>
-        <button type="button" id="signup-next-1">Далее</button>
-      </div>
-      <div class="step step-2 hidden">
-        <label>Имя пользователя (ник):<input type="text" id="signup-username" required autocomplete="off" minlength="3" /></label>
-        <button type="button" id="signup-prev-2">Назад</button>
-        <button type="button" id="signup-next-2">Далее</button>
-      </div>
-      <div class="step step-3 hidden">
-        <label>Пароль:<input type="password" id="signup-password" required minlength="6" /></label>
-        <button type="button" id="signup-prev-3">Назад</button>
-        <button type="submit">Зарегистрироваться</button>
-      </div>
-      <div class="error" id="signup-error"></div>
-      <button type="button" class="btn-cancel">Отмена</button>
+    <form id="signup-form" autocomplete="off">
+      <label>
+        Почта
+        <input type="email" id="signup-email" required placeholder="example@mail.com" />
+      </label>
+      <label>
+        Никнейм
+        <input type="text" id="signup-nickname" required placeholder="Ваш никнейм" maxlength="20" />
+      </label>
+      <label>
+        Пароль
+        <input type="password" id="signup-password" required placeholder="Придумайте пароль" minlength="6" />
+      </label>
+      <button type="submit" class="btn-primary">Зарегистрироваться</button>
+      <button type="button" id="signup-cancel" class="btn-secondary">Отмена</button>
+      <p class="error" id="signup-error"></p>
     </form>
   </section>
 
   <!-- Вход -->
-  <section id="login-section" class="center-screen hidden">
+  <section id="login-section" class="auth-section hidden">
     <h2>Вход</h2>
-    <form id="login-form">
-      <label>Email:<input type="email" id="login-email" required autocomplete="off" /></label>
-      <label>Пароль:<input type="password" id="login-password" required /></label>
-      <button type="submit">Войти</button>
-      <div class="error" id="login-error"></div>
-      <button type="button" class="btn-cancel">Отмена</button>
+    <form id="login-form" autocomplete="off">
+      <label>
+        Почта
+        <input type="email" id="login-email" required placeholder="example@mail.com" />
+      </label>
+      <label>
+        Пароль
+        <input type="password" id="login-password" required placeholder="Ваш пароль" />
+      </label>
+      <button type="submit" class="btn-primary">Войти</button>
+      <button type="button" id="login-cancel" class="btn-secondary">Отмена</button>
+      <p class="error" id="login-error"></p>
     </form>
   </section>
 
-  <!-- Главный экран банка -->
+  <!-- Главная страница пользователя -->
   <section id="main-section" class="hidden">
-    <header>
-      <h1>ZenoBank</h1>
-      <button id="btn-me">Me</button>
-    </header>
+    <h1>Добро пожаловать, <span id="display-nickname"></span>!</h1>
+    <div class="account-info">
+      <p>Баланс: <strong><span id="display-balance">0</span> ₽</strong></p>
+      <p>Адрес кошелька: <code id="display-address"></code></p>
+    </div>
 
-    <main id="main-content">
-      <div id="home-view">
-        <h2>Добро пожаловать, <span id="user-nickname"></span>!</h2>
-        <p>Ваш баланс: <span id="user-balance">0.00</span> монет</p>
-      </div>
-      <div id="transfer-view" class="hidden">
-        <h2>Передача денег</h2>
-        <form id="transfer-form">
-          <label>Адрес получателя:<input type="text" id="transfer-address" placeholder="z1234567" pattern="z\\d{7}" required autocomplete="off" /></label>
-          <label>Сумма:<input type="number" id="transfer-amount" min="0.01" step="0.01" required /></label>
-          <button type="submit">Отправить</button>
-          <div id="transfer-message" class="error"></div>
-        </form>
-      </div>
-    </main>
-
-    <!-- Профиль / панель Me -->
-    <aside id="me-panel" class="hidden">
-      <h3>Профиль</h3>
-      <p><b>Имя:</b> <span id="profile-name"></span></p>
-      <p><b>Баланс:</b> <span id="profile-balance">0.00</span></p>
-      <p><b>Адрес:</b> <span id="profile-address"></span></p>
-      <button id="btn-logout">Выйти</button>
-      <button id="btn-close-me">Закрыть</button>
-    </aside>
-
-    <!-- Нижнее меню -->
-    <nav id="bottom-nav">
-      <button id="nav-home" class="active">Главная</button>
-      <button id="nav-transfer">Передача</button>
-      <button id="nav-me">Me</button>
-    </nav>
+    <section class="actions">
+      <h3>Действия</h3>
+      <form id="transfer-form" autocomplete="off">
+        <label>
+          Кому (адрес)
+          <input type="text" id="transfer-to" required placeholder="z1234567" pattern="z\d{7}" />
+        </label>
+        <label>
+          Сумма (₽)
+          <input type="number" id="transfer-amount" required min="1" placeholder="100" />
+        </label>
+        <button type="submit" class="btn-primary">Отправить</button>
+      </form>
+      <p class="error" id="transfer-error"></p>
+      <p class="success" id="transfer-success"></p>
+    </section>
   </section>
+</main>
 
-</div>
+<footer>
+  <div class="footer-content">
+    <span>© 2025 Zenobank</span>
+    <div>
+      <label for="lang-select">Язык:</label>
+      <select id="lang-select" aria-label="Выбор языка">
+        <option value="ru" selected>Русский</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </div>
+</footer>
 
-<script type="module" src="app.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
+<script src="app.js"></script>
 </body>
 </html>
