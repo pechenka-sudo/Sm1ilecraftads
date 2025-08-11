@@ -1,326 +1,291 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  query,
-  where,
-  collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+// ==== Инициализация Firebase (замени на свои настройки) ====
+const firebaseConfig = {
+  apiKey: "AIzaSyBvTtAiVdBFL3D9S7p77o59Osqvr3g5o5w",
+  authDomain: "idle-bank-ecd4c.firebaseapp.com",
+  projectId: "idle-bank-ecd4c",
+  storageBucket: "idle-bank-ecd4c.appspot.com",
+  messagingSenderId: "620382532734",
+  appId: "1:620382532734:web:2bf17700e3ea279709142f"
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Конфиг Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyBvTtAiVdBFL3D9S7p77o59Osqvr3g5o5w",
-    authDomain: "idle-bank-ecd4c.firebaseapp.com",
-    projectId: "idle-bank-ecd4c",
-    storageBucket: "idle-bank-ecd4c.appspot.com",
-    messagingSenderId: "620382532734",
-    appId: "1:620382532734:web:2bf17700e3ea279709142f",
-    measurementId: "G-RL9Q74FR4K"
-  };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+// ==== UI элементы ====
+const ui = {
+  btnShowLogin: document.getElementById('btn-show-login'),
+  btnShowSignup: document.getElementById('btn-show-signup'),
+  btnLogout: document.getElementById('btn-logout'),
+  userInfo: document.getElementById('user-info'),
+  userNickname: document.getElementById('user-nickname'),
+  userBalance: document.getElementById('user-balance'),
+  userAddress: document.getElementById('user-address'),
 
-  // Элементы DOM
-  const startScreen = document.getElementById('start-screen');
-  const signupSection = document.getElementById('signup-section');
-  const loginSection = document.getElementById('login-section');
-  const mainSection = document.getElementById('main-section');
+  signupSection: document.getElementById('signup-section'),
+  loginSection: document.getElementById('login-section'),
+  mainSection: document.getElementById('main-section'),
 
-  const btnShowLogin = document.getElementById('btn-show-login');
-  const btnShowSignup = document.getElementById('btn-show-signup');
+  signupForm: document.getElementById('signup-form'),
+  loginForm: document.getElementById('login-form'),
 
-  const signupForm = document.getElementById('signup-form');
-  const loginForm = document.getElementById('login-form');
+  signupError: document.getElementById('signup-error'),
+  loginError: document.getElementById('login-error'),
 
-  const signupError = document.getElementById('signup-error');
-  const loginError = document.getElementById('login-error');
+  displayNickname: document.getElementById('display-nickname'),
+  displayBalance: document.getElementById('display-balance'),
+  displayAddress: document.getElementById('display-address'),
 
-  const btnLogout = document.getElementById('btn-logout');
-  const btnMe = document.getElementById('btn-me');
-  const mePanel = document.getElementById('me-panel');
-  const btnCloseMe = document.getElementById('btn-close-me');
+  transferForm: document.getElementById('transfer-form'),
+  transferTo: document.getElementById('transfer-to'),
+  transferAmount: document.getElementById('transfer-amount'),
+  transferError: document.getElementById('transfer-error'),
+  transferSuccess: document.getElementById('transfer-success'),
 
-  const userNicknameEl = document.getElementById('user-nickname');
-  const userBalanceEl = document.getElementById('user-balance');
-  const userAddressEl = document.getElementById('user-address');
+  btnSignupCancel: document.getElementById('signup-cancel'),
+  btnLoginCancel: document.getElementById('login-cancel'),
 
-  const profileName = document.getElementById('profile-name');
-  const profileBalance = document.getElementById('profile-balance');
-  const profileAddress = document.getElementById('profile-address');
+  langSelect: document.getElementById('lang-select'),
+};
 
-  const navHome = document.getElementById('nav-home');
-  const navTransfer = document.getElementById('nav-transfer');
-  const navMe = document.getElementById('nav-me');
+// ==== Вспомогательные функции для UI ====
 
-  const homeView = document.getElementById('home-view');
-  const transferView = document.getElementById('transfer-view');
+function hideAllSections() {
+  ui.signupSection.classList.add('hidden');
+  ui.loginSection.classList.add('hidden');
+  ui.mainSection.classList.add('hidden');
+  ui.userInfo.classList.add('hidden');
+  ui.btnShowLogin.style.display = 'inline-block';
+  ui.btnShowSignup.style.display = 'inline-block';
+  ui.btnLogout.style.display = 'none';
+}
 
-  const transferForm = document.getElementById('transfer-form');
-  const transferAddress = document.getElementById('transfer-address');
-  const transferAmount = document.getElementById('transfer-amount');
-  const transferMessage = document.getElementById('transfer-message');
+function showSection(section) {
+  hideAllSections();
+  section.classList.remove('hidden');
+}
 
-  const signupNext1 = document.getElementById('signup-next-1');
-  const signupNext2 = document.getElementById('signup-next-2');
-  const signupPrev2 = document.getElementById('signup-prev-2');
-  const signupPrev3 = document.getElementById('signup-prev-3');
+function clearErrors() {
+  ui.signupError.textContent = '';
+  ui.loginError.textContent = '';
+  ui.transferError.textContent = '';
+  ui.transferSuccess.textContent = '';
+}
 
-  const signupSteps = signupSection.querySelectorAll('.step');
-  const btnCancelForms = document.querySelectorAll('.btn-cancel');
+function generateAddress() {
+  return 'z' + Math.floor(1000000 + Math.random() * 9000000);
+}
 
-  // Переменные
-  let currentUserData = null;
-  let signupData = {};
+// ==== Работа с данными пользователя ====
 
-  // Функция показа экрана и скрытия остальных
-  function showScreen(screen) {
-    [startScreen, signupSection, loginSection, mainSection].forEach(s => s.style.display = 'none');
-    screen.style.display = 'block';
-  }
-
-  // Показать шаг регистрации
-  function showSignupStep(index) {
-    signupSteps.forEach((step, i) => {
-      step.style.display = i === index ? 'block' : 'none';
+async function createUserProfile(uid, email, nickname) {
+  const userDocRef = db.collection('users').doc(uid);
+  const userDoc = await userDocRef.get();
+  if (!userDoc.exists) {
+    await userDocRef.set({
+      nickname,
+      email,
+      balance: 1000,  // стартовый баланс
+      address: generateAddress(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   }
+}
 
-  // Генерация адреса zxxxxxxx (цифры)
-  function generateAddress() {
-    return 'z' + Math.floor(1000000 + Math.random() * 9000000).toString();
+async function getUserData(uid) {
+  const doc = await db.collection('users').doc(uid).get();
+  if (!doc.exists) return null;
+  return doc.data();
+}
+
+async function updateUserBalance(uid, newBalance) {
+  return db.collection('users').doc(uid).update({
+    balance: newBalance
+  });
+}
+
+// ==== Обновление UI с данными пользователя ====
+
+async function updateUIWithUserData(user) {
+  if (!user) return;
+
+  const userData = await getUserData(user.uid);
+  if (!userData) return;
+
+  ui.userNickname.textContent = userData.nickname;
+  ui.userBalance.textContent = userData.balance.toFixed(2);
+  ui.userAddress.textContent = userData.address;
+
+  ui.displayNickname.textContent = userData.nickname;
+  ui.displayBalance.textContent = userData.balance.toFixed(2);
+  ui.displayAddress.textContent = userData.address;
+
+  ui.userInfo.classList.remove('hidden');
+  ui.btnShowLogin.style.display = 'none';
+  ui.btnShowSignup.style.display = 'none';
+  ui.btnLogout.style.display = 'inline-block';
+
+  showSection(ui.mainSection);
+}
+
+// ==== Обработчики ====
+
+ui.btnShowLogin.onclick = () => {
+  clearErrors();
+  showSection(ui.loginSection);
+};
+
+ui.btnShowSignup.onclick = () => {
+  clearErrors();
+  showSection(ui.signupSection);
+};
+
+ui.btnLogout.onclick = () => {
+  auth.signOut();
+  hideAllSections();
+};
+
+ui.btnSignupCancel.onclick = () => {
+  clearErrors();
+  hideAllSections();
+};
+
+ui.btnLoginCancel.onclick = () => {
+  clearErrors();
+  hideAllSections();
+};
+
+// ==== Регистрация ====
+
+ui.signupForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearErrors();
+
+  const email = ui.signupForm['signup-email'].value.trim();
+  const nickname = ui.signupForm['signup-nickname'].value.trim();
+  const password = ui.signupForm['signup-password'].value;
+
+  if (!email || !nickname || !password) {
+    ui.signupError.textContent = 'Заполните все поля';
+    return;
   }
 
-  // Обновить профиль и UI пользователя
-  async function loadUserData(uid) {
-    const userDoc = await getDoc(doc(db, 'users', uid));
-    if (userDoc.exists()) {
-      currentUserData = userDoc.data();
-      userNicknameEl.textContent = currentUserData.nickname || 'NoName';
-      userBalanceEl.textContent = currentUserData.balance?.toFixed(2) || '0.00';
-      userAddressEl.textContent = currentUserData.address || '...';
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
 
-      profileName.textContent = currentUserData.nickname || 'NoName';
-      profileBalance.textContent = currentUserData.balance?.toFixed(2) || '0.00';
-      profileAddress.textContent = currentUserData.address || '...';
-    } else {
-      // Если пользователя нет — создаём
-      currentUserData = {
-        nickname: 'NoName',
-        balance: 0,
-        address: generateAddress()
-      };
-      await setDoc(doc(db, 'users', uid), currentUserData);
-      loadUserData(uid);
-    }
+    await createUserProfile(user.uid, email, nickname);
+
+    ui.signupForm.reset();
+    await updateUIWithUserData(user);
+
+  } catch (err) {
+    ui.signupError.textContent = err.message;
+  }
+});
+
+// ==== Вход ====
+
+ui.loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearErrors();
+
+  const email = ui.loginForm['login-email'].value.trim();
+  const password = ui.loginForm['login-password'].value;
+
+  if (!email || !password) {
+    ui.loginError.textContent = 'Заполните все поля';
+    return;
   }
 
-  // Обновить баланс локально и в Firestore
-  async function updateBalance(uid, newBalance) {
-    if (!currentUserData) return;
-    currentUserData.balance = newBalance;
-    userBalanceEl.textContent = newBalance.toFixed(2);
-    profileBalance.textContent = newBalance.toFixed(2);
-    await updateDoc(doc(db, 'users', uid), { balance: newBalance });
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+
+    ui.loginForm.reset();
+    await updateUIWithUserData(user);
+
+  } catch (err) {
+    ui.loginError.textContent = err.message;
+  }
+});
+
+// ==== Передача денег ====
+
+ui.transferForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearErrors();
+
+  const toAddress = ui.transferTo.value.trim();
+  const amount = parseFloat(ui.transferAmount.value);
+
+  if (!toAddress.match(/^z\d{7}$/)) {
+    ui.transferError.textContent = 'Неверный формат адреса получателя (пример: z1234567)';
+    return;
+  }
+  if (isNaN(amount) || amount <= 0) {
+    ui.transferError.textContent = 'Введите корректную сумму';
+    return;
   }
 
-  // Слушатели
-  btnShowLogin.addEventListener('click', () => {
-    showScreen(loginSection);
-    loginError.textContent = '';
-  });
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    ui.transferError.textContent = 'Вы должны войти в систему';
+    return;
+  }
 
-  btnShowSignup.addEventListener('click', () => {
-    showScreen(signupSection);
-    signupError.textContent = '';
-    showSignupStep(0);
-    signupData = {};
-  });
+  const senderDocRef = db.collection('users').doc(currentUser.uid);
 
-  btnCancelForms.forEach(btn => {
-    btn.addEventListener('click', () => showScreen(startScreen));
-  });
+  try {
+    await db.runTransaction(async (transaction) => {
+      const senderDoc = await transaction.get(senderDocRef);
+      if (!senderDoc.exists) throw new Error('Профиль отправителя не найден');
 
-  signupNext1.addEventListener('click', () => {
-    const email = document.getElementById('signup-email').value.trim();
-    if (!email) {
-      signupError.textContent = 'Введите Email';
-      return;
-    }
-    signupData.email = email;
-    signupError.textContent = '';
-    showSignupStep(1);
-  });
+      const senderData = senderDoc.data();
+      if (senderData.balance < amount) throw new Error('Недостаточно средств');
 
-  signupNext2.addEventListener('click', () => {
-    const nickname = document.getElementById('signup-nickname').value.trim();
-    if (!nickname) {
-      signupError.textContent = 'Введите никнейм';
-      return;
-    }
-    signupData.nickname = nickname;
-    signupError.textContent = '';
-    showSignupStep(2);
-  });
+      // Ищем пользователя с адресом получателя
+      const querySnapshot = await db.collection('users')
+        .where('address', '==', toAddress)
+        .limit(1)
+        .get();
 
-  signupPrev2.addEventListener('click', () => showSignupStep(0));
-  signupPrev3.addEventListener('click', () => showSignupStep(1));
+      if (querySnapshot.empty) throw new Error('Пользователь с таким адресом не найден');
 
-  signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const password = document.getElementById('signup-password').value.trim();
-    if (!password) {
-      signupError.textContent = 'Введите пароль';
-      return;
-    }
-    signupData.password = password;
-    signupError.textContent = '';
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, signupData.email, signupData.password);
-      const uid = userCredential.user.uid;
-      // Создать профиль в БД
-      const userDocRef = doc(db, 'users', uid);
-      await setDoc(userDocRef, {
-        nickname: signupData.nickname,
-        balance: 0,
-        address: generateAddress()
-      });
-      showScreen(mainSection);
-      await loadUserData(uid);
-    } catch (err) {
-      signupError.textContent = err.message;
-    }
-  });
-
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value.trim();
-    loginError.textContent = '';
-
-    if (!email || !password) {
-      loginError.textContent = 'Введите email и пароль';
-      return;
-    }
-
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      showScreen(mainSection);
-      await loadUserData(userCredential.user.uid);
-    } catch (err) {
-      loginError.textContent = 'Ошибка входа: ' + err.message;
-    }
-  });
-
-  btnLogout.addEventListener('click', async () => {
-    await signOut(auth);
-    currentUserData = null;
-    showScreen(startScreen);
-  });
-
-  btnMe.addEventListener('click', () => {
-    mePanel.style.display = 'block';
-  });
-
-  btnCloseMe.addEventListener('click', () => {
-    mePanel.style.display = 'none';
-  });
-
-  // Навигация
-  navHome.addEventListener('click', () => {
-    homeView.style.display = 'block';
-    transferView.style.display = 'none';
-  });
-
-  navTransfer.addEventListener('click', () => {
-    homeView.style.display = 'none';
-    transferView.style.display = 'block';
-    transferMessage.textContent = '';
-    transferAddress.value = '';
-    transferAmount.value = '';
-  });
-
-  navMe.addEventListener('click', () => {
-    homeView.style.display = 'none';
-    transferView.style.display = 'none';
-    mePanel.style.display = 'block';
-  });
-
-  // Отправка денег
-  transferForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    transferMessage.textContent = '';
-
-    const address = transferAddress.value.trim();
-    const amount = parseFloat(transferAmount.value);
-    if (!address.match(/^z\d{7}$/)) {
-      transferMessage.textContent = 'Неверный адрес (пример: z1234567)';
-      return;
-    }
-    if (isNaN(amount) || amount <= 0) {
-      transferMessage.textContent = 'Введите корректную сумму';
-      return;
-    }
-    if (!currentUserData || currentUserData.balance < amount) {
-      transferMessage.textContent = 'Недостаточно средств';
-      return;
-    }
-
-    try {
-      // Найти получателя по адресу
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where("address", "==", address));
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        transferMessage.textContent = 'Пользователь с таким адресом не найден';
-        return;
-      }
-
-      // Предполагаем, что адрес уникален, берем первого
       const recipientDoc = querySnapshot.docs[0];
       const recipientData = recipientDoc.data();
 
-      // Обновляем баланс отправителя и получателя
-      const senderRef = doc(db, 'users', auth.currentUser.uid);
-      const recipientRef = doc(db, 'users', recipientDoc.id);
+      // Обновляем балансы
+      transaction.update(senderDocRef, { balance: senderData.balance - amount });
+      transaction.update(recipientDoc.ref, { balance: recipientData.balance + amount });
+    });
 
-      await updateBalance(auth.currentUser.uid, currentUserData.balance - amount);
-      await updateDoc(recipientRef, { balance: (recipientData.balance || 0) + amount });
+    ui.transferSuccess.textContent = `Успешно отправлено ${amount.toFixed(2)} ₽ на адрес ${toAddress}`;
+    ui.transferForm.reset();
+    await updateUIWithUserData(currentUser);
 
-      transferMessage.style.color = 'green';
-      transferMessage.textContent = `Успешно переведено ${amount.toFixed(2)} на адрес ${address}`;
-      transferAmount.value = '';
-      transferAddress.value = '';
-    } catch (err) {
-      transferMessage.style.color = 'red';
-      transferMessage.textContent = 'Ошибка перевода: ' + err.message;
-    }
-  });
-
-  // Отслеживание состояния аутентификации
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      showScreen(mainSection);
-      await loadUserData(user.uid);
-    } else {
-      showScreen(startScreen);
-    }
-  });
-
-  // Изначально показываем стартовый экран
-  showScreen(startScreen);
+  } catch (err) {
+    ui.transferError.textContent = err.message;
+  }
 });
+
+// ==== Отслеживание авторизации ====
+
+auth.onAuthStateChanged(async (user) => {
+  clearErrors();
+  if (user) {
+    await updateUIWithUserData(user);
+  } else {
+    hideAllSections();
+  }
+});
+
+// ==== Переключение языка (минимальная заглушка) ====
+
+ui.langSelect.addEventListener('change', (e) => {
+  // Тут можно добавить локализацию по языку
+  alert(`Выбран язык: ${e.target.value}. Локализация пока не реализована.`);
+});
+
+// ==== Стартовое состояние ====
+hideAllSections();
