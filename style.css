@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'PT Sans', sans-serif;
+  background: linear-gradient(180deg, #3a3a3a, #1f1f1f);
+  color: #f5deb3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#ad-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: #000;
+  text-align: center;
+  z-index: 10000;
+  padding: 5px 0;
+}
+
+#ad-banner .ad-content {
+  position: relative;
+  max-width: 728px;
+  margin: auto;
+}
+
+.close-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+}
+
+#close-ad:checked ~ #game {
+  margin-top: 20px;
+}
+
+#close-ad:not(:checked) ~ #game {
+  margin-top: 110px;
+}
+
+#game {
+  background: linear-gradient(145deg, #584d3d, #3f3521);
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  transition: margin-top 0.3s ease;
+}
+
+h1 {
+  margin-bottom: 25px;
+  font-weight: 700;
+  text-shadow: 0 0 8px #ffd700;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  font-size: 24px;
+  margin-bottom: 30px;
+  user-select: none;
+}
+
+button {
+  background: #ffd700;
+  border: none;
+  color: #4b3a00;
+  font-size: 20px;
+  padding: 15px 30px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px #b38f00;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px #e0c000;
+}
+
+button:active {
+  transform: scale(0.95);
+  box-shadow: 0 3px 10px #a57f00;
+}
