@@ -1,297 +1,124 @@
-<!--
-Idle Farm — простая симуляция фермы (idle clicker)
-Файл готов как единый index.html — сохрани в репозитории `Sm1ilecraftads` в корень и включи GitHub Pages.
-
-Особенности:
-- Покупка куриц разного уровня (обычные, породистые, легендарные).
-- Курицы генерируют яйца в секунду (EGG/s). Яйца автоматически конвертируются в монеты при сборе.
-- Есть ручной сбор (Collect), авто-сбор (Worker) и апгрейды: увеличение дохода и уменьшение стоимости.
-- Всё сохраняется в localStorage. Поддерживается начисление оффлайн (аккумуляция за время вне игры).
-- Лёгкая масштабируемость: можно добавить новые животные, рынки, престижа.
-
-Лицензия: используй как хочешь.
--->
-
-<!doctype html>
-<html lang="ru">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Idle Farm — Ферма (Demo)</title>
-<style>
-  :root{--bg:#0f1724;--card:#0b1220;--accent:#f6c85f;--muted:#9aa6b2}
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071428,#071024);color:#e6eef6;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
-  .wrap{width:100%;max-width:1100px}
-  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-  h1{margin:0;font-size:20px}
-  .row{display:flex;gap:12px}
-  .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:14px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.6)}
-  .left{flex:1}
-  .right{width:340px}
-  .stat{font-size:14px;color:var(--muted)}
-  .big{font-size:28px;font-weight:700}
-  button{background:var(--accent);color:#071018;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  .shop-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.01)}
-  .small{font-size:13px;color:var(--muted)}
-  .center{text-align:center}
-  .meter{height:10px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden}
-  .meter > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#ffdca3);width:0%}
-  footer{margin-top:12px;color:var(--muted);font-size:13px}
-  @media (max-width:900px){.row{flex-direction:column}.right{width:100%}}
-</style>
+    <meta charset="UTF-8">
+    <title>Idle Farm Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #a8e6cf, #dcedc1);
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        #game {
+            margin-top: 150px;
+            background: rgba(255, 255, 255, 0.8);
+            display: inline-block;
+            padding: 20px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+        p {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        @keyframes pop {
+            0% {transform: scale(1);}
+            50% {transform: scale(1.2);}
+            100% {transform: scale(1);}
+        }
+        .pop {
+            animation: pop 0.3s ease;
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Idle Farm — сбор яиц</h1>
-        <div class="stat">Игра-демо: покупай животных, улучшай ферму, собирай монеты</div>
-      </div>
-      <div class="stat">Auto-save & Offline earnings supported</div>
-    </header>
 
-    <div class="row">
-      <div class="left card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div>
-            <div class="small">Баланс</div>
-            <div class="big" id="coins">0</div>
-            <div class="small">Яиц/сек: <span id="pps">0</span></div>
-          </div>
-          <div class="center">
-            <button id="collect">Collect eggs</button>
-            <div class="small" style="margin-top:8px">(ручной сбор)</div>
-          </div>
-        </div>
-
-        <div style="margin-top:8px;margin-bottom:10px">
-          <div class="small">Автосбор</div>
-          <div style="display:flex;gap:8px;margin-top:6px">
-            <button id="buyWorker" class="ghost">Hire Worker</button>
-            <button id="sellAll" class="ghost">Sell All</button>
-          </div>
-        </div>
-
-        <hr style="border:0;border-top:1px solid rgba(255,255,255,0.03);margin:12px 0">
-
-        <div>
-          <h3 style="margin:8px 0">Ферма: животные</h3>
-          <div id="shop"></div>
-        </div>
-
-        <hr style="border:0;border-top:1px solid rgba(255,255,255,0.03);margin:12px 0">
-
-        <div>
-          <h3 style="margin:8px 0">Апгрейды</h3>
-          <div id="upgrades"></div>
-        </div>
-      </div>
-
-      <div class="right card">
-        <div class="small">Статистика</div>
-        <div style="margin-top:8px">
-          <div class="small">Куриц: <span id="chickCount">0</span></div>
-          <div class="small">Рабочие: <span id="workers">0</span></div>
-          <div class="small">Всего собрал: <span id="totalCollected">0</span></div>
-        </div>
-
-        <hr style="margin:12px 0;border:0;border-top:1px solid rgba(255,255,255,0.03)">
-
-        <div>
-          <div class="small">Прогресс сохранения</div>
-          <div class="meter" style="margin-top:6px"><i id="saveMeter"></i></div>
-        </div>
-
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button id="export" class="ghost">Export save</button>
-          <button id="import" class="ghost">Import save</button>
-        </div>
-        <div style="position: absolute; z-index: 99999">
-      <input autocomplete="off" type="checkbox" id="aadsstickyme745b3w" hidden />
-      <div style="padding-top: auto; padding-bottom: 0;">
+<!-- Рекламный баннер -->
+<div style="position: absolute; z-index: 99999">
+    <input autocomplete="off" type="checkbox" id="aadsstickyme745b3w" hidden />
+    <div style="padding-top: auto; padding-bottom: 0;">
         <div style="width:100%;height:auto;position:fixed;text-align:center;font-size:0;top:0;left:0;right:0;margin:auto">
-          <label for="aadsstickyme745b3w" style="top: 50%;transform: translateY(-50%);right:24px;; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
-            <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
-              <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
-            </svg>
-          </label>
-          <div id="frame" style="width: 100%;margin: auto;background: rgba(0, 0, 0, 0.50);position: relative; z-index: 99998;"><iframe data-aa=2406373 src=//acceptable.a-ads.com/2406373/?size=Adaptive style='border:0; padding:0; width:70%; height:auto; overflow:hidden; margin: auto'></iframe></div>
+            <label for="aadsstickyme745b3w" style="top: 50%;transform: translateY(-50%);right:24px; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
+                <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
+                    <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
+                </svg>
+            </label>
+            <div id="frame" style="width: 100%;margin: auto;background: rgba(0, 0, 0, 0.50);position: relative; z-index: 99998;">
+                <iframe data-aa=2406373 src="//acceptable.a-ads.com/2406373/?size=Adaptive" style='border:0; padding:0; width:70%; height:auto; overflow:hidden; margin: auto'></iframe>
+            </div>
         </div>
         <style>
-      #aadsstickyme745b3w:checked + div {
-        display: none;
-      }
-    </style>
-    </div></div>
-
-        <footer>Сохранение в localStorage. Если хочешь — добавлю авторизацию и сервер.</footer>
-      </div>
+            #aadsstickyme745b3w:checked + div {
+                display: none;
+            }
+        </style>
     </div>
-  </div>
+</div>
+
+<div id="game">
+    <h1>🐔 Idle Farm</h1>
+    <p>💰 Деньги: <span id="money">0</span></p>
+    <p>🐓 Курицы: <span id="chickens">0</span></p>
+    <button id="buyChicken">Купить курицу (10$)</button>
+</div>
 
 <script>
-// Idle Farm logic
-const DEFAULT = {
-  coins: 0,
-  eggs: 0,
-  workers: 0,
-  animals: {
-    chicken: {count:0, baseCost:10, pps:0.1},
-    hen: {count:0, baseCost:120, pps:1},
-    rooster: {count:0, baseCost:1500, pps:12}
-  },
-  upgrades: {eggBoost:0,costMult:0},
-  totalCollected: 0,
-  lastTick: Date.now()
-}
+    let money = 0;
+    let chickens = 0;
 
-let state = {};
-const SAVE_KEY = 'idle_farm_v1';
+    const moneyEl = document.getElementById("money");
+    const chickensEl = document.getElementById("chickens");
+    const buyBtn = document.getElementById("buyChicken");
 
-function load(){
-  const raw = localStorage.getItem(SAVE_KEY);
-  if(raw){
-    try{ state = JSON.parse(raw); }
-    catch(e){ console.error('load err',e); state = JSON.parse(JSON.stringify(DEFAULT)); }
-    // offline earnings
-    const now = Date.now();
-    const dt = Math.floor((now - (state.lastTick||now))/1000);
-    if(dt > 0){
-      const offline = dt * calcPPS();
-      if(offline > 0){
-        state.eggs += offline; state.totalCollected += offline; log('Offline eggs: ' + format(offline));
-      }
+    buyBtn.addEventListener("click", () => {
+        if (money >= 10) {
+            money -= 10;
+            chickens++;
+            updateDisplay();
+            chickensEl.classList.add("pop");
+            setTimeout(() => chickensEl.classList.remove("pop"), 300);
+        }
+    });
+
+    function updateDisplay() {
+        moneyEl.textContent = money.toFixed(2);
+        chickensEl.textContent = chickens;
     }
-  } else { state = JSON.parse(JSON.stringify(DEFAULT)); }
-  renderAll();
-}
 
-function save(){
-  state.lastTick = Date.now();
-  localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-  animateSaveBar();
-}
-
-function format(v){ return Number(v).toFixed(2) }
-
-function calcPPS(){
-  let pps = 0;
-  for(const k in state.animals){
-    const a = state.animals[k];
-    pps += a.count * a.pps;
-  }
-  // upgrades
-  pps *= (1 + (state.upgrades.eggBoost||0));
-  return pps;
-}
-
-function renderAll(){
-  document.getElementById('coins').innerText = format(state.coins);
-  document.getElementById('pps').innerText = format(calcPPS());
-  document.getElementById('chickCount').innerText = Object.values(state.animals).reduce((s,a)=>s+a.count,0);
-  document.getElementById('workers').innerText = state.workers;
-  document.getElementById('totalCollected').innerText = format(state.totalCollected);
-  document.getElementById('score').innerText = format(state.eggs);
-  document.getElementById('total').innerText = format(Object.values(state.animals).reduce((s,a)=>s.count,0));
-  // shop
-  const shop = document.getElementById('shop'); shop.innerHTML = '';
-  for(const k of Object.keys(state.animals)){
-    const a = state.animals[k];
-    const cost = Math.ceil(a.baseCost * Math.pow(1.15, a.count));
-    const div = document.createElement('div'); div.className='shop-item';
-    div.innerHTML = `<div style="flex:1"><div style='font-weight:700;text-transform:capitalize'>${k}</div><div class='small'>Gives ${a.pps} eggs/s</div></div><div style='text-align:right'><div class='small'>x${a.count}</div><div style='margin-top:6px'><button data-buy='${k}' class='buy'>Buy (${cost})</button></div></div>`;
-    shop.appendChild(div);
-  }
-  // upgrades
-  const upg = document.getElementById('upgrades'); upg.innerHTML = '';
-  const u1Cost = 200 * Math.pow(2, state.upgrades.eggBoost);
-  const u1 = document.createElement('div'); u1.className='shop-item';
-  u1.innerHTML = `<div style="flex:1"><div style='font-weight:700'>Upgrade: +25% eggs</div><div class='small'>levels: ${state.upgrades.eggBoost}</div></div><div style='text-align:right'><div style='margin-top:6px'><button id='buyUpg'>Buy (${Math.ceil(u1Cost)})</button></div></div>`;
-  upg.appendChild(u1);
-}
-
-// UI bindings
-document.addEventListener('click', e=>{
-  if(e.target.matches('.buy')){ const k = e.target.dataset.buy; buyAnimal(k); }
-});
-
-document.getElementById('collect').addEventListener('click', ()=>{ collectEggs(); save(); });
-document.getElementById('buyWorker').addEventListener('click', ()=>{ buyWorker(); });
-document.getElementById('sellAll').addEventListener('click', ()=>{ sellAll(); });
-document.getElementById('buyUpg').addEventListener('click', ()=>{ buyUpgrade(); });
-
-function buyAnimal(key){
-  const a = state.animals[key];
-  const cost = Math.ceil(a.baseCost * Math.pow(1.15, a.count));
-  if(state.coins >= cost){ state.coins -= cost; a.count += 1; log('Bought ' + key); save(); renderAll(); }
-  else alert('Not enough coins');
-}
-
-function buyWorker(){
-  const cost = 500 * Math.pow(1.5, state.workers);
-  if(state.coins >= cost){ state.coins -= cost; state.workers += 1; log('Hired worker'); save(); renderAll(); }
-  else alert('Not enough coins');
-}
-
-function buyUpgrade(){
-  const cost = Math.ceil(200 * Math.pow(2, state.upgrades.eggBoost));
-  if(state.coins >= cost){ state.coins -= cost; state.upgrades.eggBoost += 0.25; log('Upgrade purchased'); save(); renderAll(); }
-  else alert('Not enough coins');
-}
-
-function collectEggs(){
-  const eggs = calcPPS(); // quick collect
-  state.eggs += eggs; state.totalCollected += eggs;
-  // auto-convert eggs to coins at rate 1 egg = 0.5 coin
-  const coinsGained = eggs * 0.5;
-  state.coins += coinsGained; log('Collected ' + format(eggs) + ' eggs -> +' + format(coinsGained) + ' coins');
-  renderAll();
-}
-
-function sellAll(){
-  const eggs = state.eggs; if(eggs <= 0) { alert('No eggs to sell'); return; }
-  const coinsGained = eggs * 0.5; state.coins += coinsGained; state.eggs = 0; save(); renderAll(); log('Sold all eggs -> +' + format(coinsGained) );
-}
-
-// Tick: every second, produce eggs; workers auto-sell a fraction
-setInterval(()=>{
-  const pps = calcPPS();
-  state.eggs += pps; state.totalCollected += pps;
-  // workers auto-collect: each worker converts pps*workerShare to coins
-  if(state.workers > 0){
-    const workerShare = 0.5; // workers convert half of produced eggs
-    const converted = pps * state.workers * workerShare;
-    const coinsGained = converted * 0.5; // conversion rate
-    state.coins += coinsGained;
-    state.eggs = Math.max(0, state.eggs - converted);
-  }
-  renderAll();
-},1000);
-
-// Auto-save every 10s
-setInterval(save,10000);
-
-// Save bar animation
-function animateSaveBar(){
-  const el = document.getElementById('saveMeter'); el.style.width='0%';
-  let w = 0; const id = setInterval(()=>{ w+=10; el.style.width = w + '%'; if(w>=100) clearInterval(id); },60);
-}
-
-// logging
-function log(msg){ console.log('[Farm] ' + msg); }
-
-// export/import
-document.getElementById('export').addEventListener('click', ()=>{ const data = JSON.stringify(state); prompt('Copy your save data:', data); });
-document.getElementById('import').addEventListener('click', ()=>{ const data = prompt('Paste save data:'); try{ const obj = JSON.parse(data); state = obj; save(); renderAll(); } catch(e){ alert('Invalid data') } });
-
-// init
-load(); renderAll();
-
-// keyboard quick collect
-window.addEventListener('keydown', e=>{ if(e.key === 'c') collectEggs(); });
-
+    setInterval(() => {
+        if (chickens > 0) {
+            money += chickens * 0.5;
+            moneyEl.classList.add("pop");
+            setTimeout(() => moneyEl.classList.remove("pop"), 300);
+            updateDisplay();
+        }
+    }, 1000);
 </script>
+
 </body>
 </html>
