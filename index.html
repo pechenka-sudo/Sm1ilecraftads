@@ -2,55 +2,60 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Игровой банк</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Продвинутый Idle Bank</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main class="container">
+    <section id="auth-section" class="card">
+      <h1>Добро пожаловать в Idle Bank</h1>
 
-  <main id="app">
-
-    <section id="auth-section">
-      <h1>Игровой банк — регистрация и вход</h1>
-
-      <div id="register">
+      <form id="register-form" class="auth-form">
         <h2>Регистрация</h2>
-        <input id="reg-username" placeholder="Введите ник" autocomplete="off" />
-        <button id="register-btn">Зарегистрироваться</button>
-      </div>
+        <input type="email" id="reg-email" placeholder="Email" required autocomplete="username" />
+        <input type="password" id="reg-password" placeholder="Пароль (min 6)" required autocomplete="new-password" minlength="6" />
+        <button type="submit">Зарегистрироваться</button>
+      </form>
 
-      <div id="login">
+      <form id="login-form" class="auth-form">
         <h2>Вход</h2>
-        <input id="login-username" placeholder="Введите ник" autocomplete="off" />
-        <button id="login-btn">Войти</button>
-      </div>
+        <input type="email" id="login-email" placeholder="Email" required autocomplete="username" />
+        <input type="password" id="login-password" placeholder="Пароль" required autocomplete="current-password" />
+        <button type="submit">Войти</button>
+      </form>
 
-      <div id="auth-msg" class="msg"></div>
+      <div id="auth-message" class="message"></div>
     </section>
 
-    <section id="bank-section" hidden>
-      <h1>Добро пожаловать, <span id="current-user"></span>!</h1>
-
-      <div id="balance">Баланс: <span id="balance-amount">0</span> 🪙</div>
-
-      <div id="transfer">
-        <h2>Перевести деньги</h2>
-        <input id="transfer-to" placeholder="Ник получателя" autocomplete="off" />
-        <input id="transfer-amount" type="number" min="1" placeholder="Сумма" />
-        <button id="transfer-btn">Отправить</button>
-        <div id="transfer-msg" class="msg"></div>
+    <section id="app-section" class="card" style="display:none;">
+      <div class="header">
+        <h2>Привет, <span id="user-email"></span></h2>
+        <button id="logout-btn" class="btn-logout">Выйти</button>
       </div>
 
-      <div id="history">
-        <h2>История транзакций</h2>
-        <ul id="history-list"></ul>
+      <div class="balance">
+        Баланс: <span id="balance">0</span> 🪙
       </div>
 
-      <button id="logout-btn" class="logout">Выйти</button>
+      <section class="transfer-section">
+        <h3>Перевести деньги</h3>
+        <form id="transfer-form">
+          <input type="email" id="recipient-email" placeholder="Email получателя" required />
+          <input type="number" id="transfer-amount" min="1" placeholder="Сумма" required />
+          <button type="submit">Отправить</button>
+        </form>
+      </section>
+
+      <section class="history-section">
+        <h3>История операций</h3>
+        <ul id="history-list" class="history-list"></ul>
+      </section>
+
+      <div id="app-message" class="message"></div>
     </section>
-
   </main>
 
-  <script src="script.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
