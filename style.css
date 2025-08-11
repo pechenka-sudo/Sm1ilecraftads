@@ -1,159 +1,152 @@
-/* Простая современная тема с тёмным фоном и золотыми акцентами */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-
-* {
-  box-sizing: border-box;
-}
-
+/* Общие стили */
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #1b1f25, #292c31);
-  color: #f5e6b8;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #0f1724;
+  color: #e6eef6;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-.container {
-  width: 100%;
-  max-width: 480px;
-}
-
-.card {
-  background: #272b30;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-  padding: 30px 24px;
-  margin-bottom: 24px;
-}
-
-h1, h2, h3 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-weight: 700;
-  color: #f9d34b;
-  text-align: center;
-}
-
-.auth-form {
-  margin-bottom: 20px;
-  display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  padding: 0 12px 40px;
 }
 
-input[type="email"],
-input[type="password"],
-input[type="number"] {
-  padding: 12px 16px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: none;
-  background: #1d1f23;
-  color: #f5e6b8;
-  outline-offset: 2px;
-  outline-color: #f9d34b;
-  transition: outline-color 0.3s ease;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="number"]:focus {
-  outline-color: #ffd93b;
-}
-
-button {
-  background: linear-gradient(45deg, #f9d34b, #d1b12a);
-  border: none;
-  color: #222;
-  padding: 14px;
+.logo {
+  font-size: 24px;
   font-weight: 700;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s ease;
+  color: #f6c85f;
 }
 
-button:hover {
-  background: linear-gradient(45deg, #ffd93b, #f0c330);
-}
-
-.header {
+header {
+  width: 100%;
+  max-width: 700px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  padding: 16px 0;
 }
 
-.balance {
-  font-size: 24px;
+nav button {
+  background: #f6c85f;
+  border: none;
+  color: #071018;
   font-weight: 700;
-  text-align: center;
-  margin-bottom: 24px;
-  color: #f9d34b;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background-color 0.3s ease;
 }
 
-.transfer-section form {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
+nav button:hover {
+  background-color: #d4b54c;
 }
 
-.transfer-section input[type="email"],
-.transfer-section input[type="number"] {
-  flex: 1 1 150px;
-  max-width: 220px;
+nav.hidden {
+  display: none;
 }
 
-.history-section {
-  max-height: 200px;
-  overflow-y: auto;
-  background: #1a1d22;
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 24px;
-  font-size: 14px;
-  color: #ccc88a;
-}
-
-.history-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.history-list li {
-  padding: 6px 0;
-  border-bottom: 1px solid #333622;
-}
-
-.message {
-  margin-top: 16px;
+.address {
+  margin-left: 12px;
+  font-family: monospace;
   font-weight: 600;
-  color: #f9d34b;
-  min-height: 24px;
-  text-align: center;
-  user-select: none;
+  color: #f6c85f;
 }
 
-/* Адаптивность */
+#bank-section {
+  max-width: 700px;
+  width: 100%;
+  background: #0b1220;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  margin-top: 10px;
+}
 
-@media (max-width: 500px) {
-  .container {
-    max-width: 100%;
-  }
-  .transfer-section form {
-    flex-direction: column;
-  }
-  .transfer-section input[type="email"],
-  .transfer-section input[type="number"],
-  .transfer-section button {
-    max-width: 100%;
-    flex: none;
-  }
+h2, h3 {
+  margin-top: 0;
+}
+
+form label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="number"] {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  background: #1c2639;
+  color: #e6eef6;
+  box-sizing: border-box;
+}
+
+form button[type="submit"] {
+  margin-top: 12px;
+  width: 100%;
+}
+
+#error-message, .error {
+  color: #ff6b6b;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+/* Модальные окна */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(7, 20, 36, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal form {
+  background: #0b1220;
+  padding: 24px;
+  border-radius: 12px;
+  width: 320px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.8);
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.close-modal {
+  margin-top: 16px;
+  background: transparent;
+  border: 1px solid #f6c85f;
+  color: #f6c85f;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+/* Реклама */
+#ad-banner {
+  width: 100%;
+  background: #222;
+  text-align: center;
+  padding: 10px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  margin-bottom: 10px;
+}
+
+#ad-banner img {
+  max-width: 728px;
+  width: 90%;
+  height: auto;
+  cursor: pointer;
+  border-radius: 6px;
 }
