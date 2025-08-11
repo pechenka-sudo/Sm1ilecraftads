@@ -1,9 +1,9 @@
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBvTtAiVdBFL3D9S7p77o59Osqvr3g5o5w",
-  authDomain: "idle-bank-ecd4c.firebaseapp.com",
-  projectId: "idle-bank-ecd4c",
-  storageBucket: "idle-bank-ecd4c.firebasestorage.app",
+  authDomain: "idle-bank.firebaseapp.com",
+  projectId: "idle-bank",
+  storageBucket: "idle-bank.firebasestorage.app",
   messagingSenderId: "620382532734",
   appId: "1:620382532734:web:2bf17700e3ea279709142f",
   measurementId: "G-RL9Q74FR4K"
