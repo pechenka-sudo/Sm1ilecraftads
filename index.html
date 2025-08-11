@@ -1,76 +1,103 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>XXXBank — Игровой кошелёк</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ZenoBank — Игровой кошелёк</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Рекламный баннер -->
-  <div id="ad-banner">
-    <a href="https://acceptable.a-ads.com/2406373" target="_blank" rel="noopener noreferrer">
-      <img src="https://via.placeholder.com/728x90?text=Реклама+XXXBank" alt="Реклама XXXBank" />
-    </a>
-  </div>
+<div id="app">
 
-  <header>
-    <div class="logo">XXXBank</div>
-    <nav id="nav-auth">
-      <button id="btn-login">Log In</button>
-      <button id="btn-signup">Sign Up</button>
-    </nav>
-    <nav id="nav-user" class="hidden">
-      <span id="user-info"></span>
-      <span id="user-address" class="address"></span>
-      <button id="btn-logout">Log Out</button>
-    </nav>
-  </header>
+  <!-- Стартовый экран -->
+  <section id="start-screen" class="center-screen">
+    <h1>ZenoBank</h1>
+    <div class="btn-group">
+      <button id="btn-show-login">Вход</button>
+      <button id="btn-show-signup">Регистрация</button>
+    </div>
+  </section>
 
-  <main id="bank-section" class="hidden">
-    <h2>Ваш баланс: <span id="balance">0.00</span> монет</h2>
-
-    <form id="transfer-form">
-      <h3>Отправить деньги</h3>
-      <label>
-        Адрес получателя:<br />
-        <input type="text" id="recipient-address" required pattern="z\d{7}" placeholder="z1234567" />
-      </label>
-      <label>
-        Сумма:<br />
-        <input type="number" id="transfer-amount" required min="0.01" step="0.01" />
-      </label>
-      <button type="submit">Отправить</button>
+  <!-- Регистрация многошаговая -->
+  <section id="signup-section" class="center-screen hidden">
+    <h2>Регистрация</h2>
+    <form id="signup-form">
+      <div class="step step-1">
+        <label>Email:<input type="email" id="signup-email" required autocomplete="off" /></label>
+        <button type="button" id="signup-next-1">Далее</button>
+      </div>
+      <div class="step step-2 hidden">
+        <label>Имя пользователя (ник):<input type="text" id="signup-username" required autocomplete="off" minlength="3" /></label>
+        <button type="button" id="signup-prev-2">Назад</button>
+        <button type="button" id="signup-next-2">Далее</button>
+      </div>
+      <div class="step step-3 hidden">
+        <label>Пароль:<input type="password" id="signup-password" required minlength="6" /></label>
+        <button type="button" id="signup-prev-3">Назад</button>
+        <button type="submit">Зарегистрироваться</button>
+      </div>
+      <div class="error" id="signup-error"></div>
+      <button type="button" class="btn-cancel">Отмена</button>
     </form>
+  </section>
 
-    <div id="transfer-message"></div>
-  </main>
-
-  <!-- Модалки логин/регистрация -->
-  <div id="modal-login" class="modal hidden">
-    <form id="form-login">
-      <h3>Вход</h3>
-      <label>Email:<br /><input type="email" id="login-email" required /></label>
-      <label>Пароль:<br /><input type="password" id="login-password" required /></label>
+  <!-- Вход -->
+  <section id="login-section" class="center-screen hidden">
+    <h2>Вход</h2>
+    <form id="login-form">
+      <label>Email:<input type="email" id="login-email" required autocomplete="off" /></label>
+      <label>Пароль:<input type="password" id="login-password" required /></label>
       <button type="submit">Войти</button>
       <div class="error" id="login-error"></div>
-      <button type="button" class="close-modal">Закрыть</button>
+      <button type="button" class="btn-cancel">Отмена</button>
     </form>
-  </div>
+  </section>
 
-  <div id="modal-signup" class="modal hidden">
-    <form id="form-signup">
-      <h3>Регистрация</h3>
-      <label>Имя:<br /><input type="text" id="signup-name" required /></label>
-      <label>Email:<br /><input type="email" id="signup-email" required /></label>
-      <label>Пароль:<br /><input type="password" id="signup-password" required /></label>
-      <button type="submit">Зарегистрироваться</button>
-      <div class="error" id="signup-error"></div>
-      <button type="button" class="close-modal">Закрыть</button>
-    </form>
-  </div>
+  <!-- Главный экран банка -->
+  <section id="main-section" class="hidden">
+    <header>
+      <h1>ZenoBank</h1>
+      <button id="btn-me">Me</button>
+    </header>
 
-  <script type="module" src="app.js"></script>
+    <main id="main-content">
+      <div id="home-view">
+        <h2>Добро пожаловать, <span id="user-nickname"></span>!</h2>
+        <p>Ваш баланс: <span id="user-balance">0.00</span> монет</p>
+      </div>
+      <div id="transfer-view" class="hidden">
+        <h2>Передача денег</h2>
+        <form id="transfer-form">
+          <label>Адрес получателя:<input type="text" id="transfer-address" placeholder="z1234567" pattern="z\\d{7}" required autocomplete="off" /></label>
+          <label>Сумма:<input type="number" id="transfer-amount" min="0.01" step="0.01" required /></label>
+          <button type="submit">Отправить</button>
+          <div id="transfer-message" class="error"></div>
+        </form>
+      </div>
+    </main>
+
+    <!-- Профиль / панель Me -->
+    <aside id="me-panel" class="hidden">
+      <h3>Профиль</h3>
+      <p><b>Имя:</b> <span id="profile-name"></span></p>
+      <p><b>Баланс:</b> <span id="profile-balance">0.00</span></p>
+      <p><b>Адрес:</b> <span id="profile-address"></span></p>
+      <button id="btn-logout">Выйти</button>
+      <button id="btn-close-me">Закрыть</button>
+    </aside>
+
+    <!-- Нижнее меню -->
+    <nav id="bottom-nav">
+      <button id="nav-home" class="active">Главная</button>
+      <button id="nav-transfer">Передача</button>
+      <button id="nav-me">Me</button>
+    </nav>
+  </section>
+
+</div>
+
+<script type="module" src="app.js"></script>
+
 </body>
 </html>
