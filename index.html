@@ -1,149 +1,245 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zenobank - Простой банк</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #141E30, #243B55);
-      color: #eee;
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      padding: 20px;
-    }
-    h1 { margin-bottom: 10px; }
-    .container {
-      background: #1f2937;
-      border-radius: 12px;
-      padding: 20px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 0 20px rgba(246, 200, 95, 0.7);
-    }
-    input, button, select {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: none;
-      font-size: 16px;
-    }
-    input {
-      background: #374151;
-      color: #ddd;
-    }
-    button {
-      background: #f6c85f;
-      color: #141414;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      border: 2px solid transparent;
-    }
-    button:hover {
-      background: #e1b14c;
-    }
-    #message {
-      margin-top: 12px;
-      min-height: 20px;
-      text-align: center;
-      font-weight: 600;
-    }
-    .hidden { display: none; }
-    .nav {
-      margin-bottom: 15px;
-      display: flex;
-      justify-content: space-around;
-    }
-    .nav button {
-      width: 48%;
-      font-weight: 600;
-      background: #374151;
-      color: #f6c85f;
-      border: 2px solid #f6c85f;
-    }
-    .nav button.active {
-      background: #f6c85f;
-      color: #141414;
-    }
-    .profile {
-      background: #111827;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 20px;
-      box-shadow: 0 0 12px #f6c85f;
-      font-size: 16px;
-      line-height: 1.4;
-    }
-    label {
-      font-weight: 600;
-    }
-    .transfer-section {
-      margin-top: 15px;
-    }
-    footer {
-      margin-top: auto;
-      font-size: 12px;
-      color: #888;
-      text-align: center;
-      padding: 10px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ZenoBank — Ваш Крипто-Кошелек</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; background: linear-gradient(135deg, #1e2a78, #2f4f4f);
+    font-family: 'Inter', sans-serif;
+    color: #eef2f7;
+    display: flex; flex-direction: column; min-height: 100vh;
+  }
+  header {
+    background: #112244cc;
+    padding: 1rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 1000;
+  }
+  header h1 {
+    margin: 0; font-weight: 700; font-size: 1.5rem; letter-spacing: 1px;
+  }
+  nav button {
+    background: transparent; border: 2px solid #eef2f7;
+    color: #eef2f7; font-weight: 700; padding: 0.5rem 1rem;
+    margin-left: 1rem; border-radius: 6px;
+    cursor: pointer; transition: background-color 0.3s, color 0.3s;
+  }
+  nav button:hover {
+    background: #eef2f7; color: #223344;
+  }
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+  }
+  .container {
+    background: #223344dd;
+    border-radius: 12px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    animation: fadeIn 0.6s ease forwards;
+  }
+  h2 {
+    margin-top: 0; margin-bottom: 1rem;
+    font-weight: 700; text-align: center;
+    letter-spacing: 1px;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #a8b8d0;
+  }
+  input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    margin-top: 0.4rem;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    outline-offset: 2px;
+    outline-color: #4d7fff;
+  }
+  input:focus {
+    outline-color: #8bb3ff;
+  }
+  button.submit-btn {
+    margin-top: 1.8rem;
+    width: 100%;
+    background: #4d7fff;
+    color: #fff;
+    font-weight: 700;
+    padding: 0.8rem 0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    transition: background-color 0.3s ease;
+  }
+  button.submit-btn:hover {
+    background: #6a8fff;
+  }
+  .error-msg {
+    margin-top: 0.6rem;
+    color: #ff6b6b;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .success-msg {
+    margin-top: 0.6rem;
+    color: #80ff9f;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .hidden {
+    display: none;
+  }
+  .profile {
+    text-align: center;
+  }
+  .profile .address {
+    margin: 0.8rem 0 1rem;
+    font-family: monospace;
+    background: #334466;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    user-select: all;
+    letter-spacing: 1.3px;
+  }
+  .profile .balance {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1.4rem;
+  }
+  .profile button {
+    background: #ef4444;
+    border: none;
+    color: white;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .profile button:hover {
+    background: #ff6b6b;
+  }
+  .send-section {
+    margin-top: 1.5rem;
+  }
+  .send-section input,
+  .send-section button {
+    font-size: 1rem;
+  }
+  .send-section input {
+    width: calc(100% - 120px);
+    display: inline-block;
+    margin-right: 0.8rem;
+  }
+  .send-section button {
+    width: 110px;
+    background: #4d7fff;
+    border: none;
+    color: #fff;
+    padding: 0.6rem 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .send-section button:hover {
+    background: #6a8fff;
+  }
+  footer {
+    background: #112244cc;
+    padding: 1rem 2rem;
+    text-align: center;
+    color: #9ab;
+    font-size: 0.85rem;
+    user-select: none;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+</style>
 </head>
 <body>
 
-  <h1>Zenobank</h1>
+<header>
+  <h1>ZenoBank</h1>
+  <nav id="nav-buttons">
+    <button id="show-login">Войти</button>
+    <button id="show-register">Регистрация</button>
+  </nav>
+  <nav id="nav-profile" class="hidden">
+    <span id="user-name"></span> | 
+    Баланс: <span id="user-balance">0</span> ₿ | Адрес: <span id="user-address"></span>
+    <button id="logout-btn" style="margin-left: 12px; background:#ef4444; border:none; color:#fff; border-radius:6px; cursor:pointer; padding:0.3rem 0.7rem;">Выйти</button>
+  </nav>
+</header>
 
-  <div class="nav">
-    <button id="navLogin" class="active">Вход</button>
-    <button id="navRegister">Регистрация</button>
+<main>
+  <div class="container" id="login-container">
+    <h2>Вход</h2>
+    <label for="login-email">Email</label>
+    <input type="email" id="login-email" placeholder="example@mail.com" />
+    <label for="login-password">Пароль</label>
+    <input type="password" id="login-password" placeholder="Введите пароль" />
+    <button class="submit-btn" id="login-btn">Войти</button>
+    <div class="error-msg" id="login-error"></div>
   </div>
 
-  <div class="container" id="loginForm">
-    <input id="loginEmail" type="email" placeholder="Email" autocomplete="username" />
-    <input id="loginPassword" type="password" placeholder="Пароль" autocomplete="current-password" />
-    <button id="btnLogin">Войти</button>
-    <div id="loginMessage"></div>
+  <div class="container hidden" id="register-container">
+    <h2>Регистрация</h2>
+    <label for="reg-email">Email</label>
+    <input type="email" id="reg-email" placeholder="example@mail.com" />
+    <label for="reg-username">Никнейм</label>
+    <input type="text" id="reg-username" placeholder="Ваш ник" maxlength="15" />
+    <label for="reg-password">Пароль</label>
+    <input type="password" id="reg-password" placeholder="Придумайте пароль" />
+    <button class="submit-btn" id="register-btn">Зарегистрироваться</button>
+    <div class="error-msg" id="register-error"></div>
   </div>
 
-  <div class="container hidden" id="registerForm">
-    <input id="regEmail" type="email" placeholder="Email" autocomplete="email" />
-    <input id="regUsername" type="text" placeholder="Никнейм" autocomplete="username" />
-    <input id="regPassword" type="password" placeholder="Пароль" autocomplete="new-password" />
-    <button id="btnRegister">Зарегистрироваться</button>
-    <div id="registerMessage"></div>
-  </div>
+  <div class="container hidden" id="profile-container">
+    <h2>Добро пожаловать, <span id="profile-username"></span>!</h2>
+    <div class="profile">
+      <div class="balance">Баланс: <span id="profile-balance">0</span> ₿</div>
+      <div>Ваш адрес кошелька:</div>
+      <div class="address" id="profile-address"></div>
 
-  <div class="container hidden" id="profileSection">
-    <div class="profile" id="profileInfo">
-      Загрузка данных...
+      <div class="send-section">
+        <input type="text" id="send-address" placeholder="Адрес получателя (z1234567)" maxlength="8" />
+        <input type="number" id="send-amount" placeholder="Сумма" min="0.01" step="0.01" />
+        <button id="send-btn">Отправить</button>
+        <div class="error-msg" id="send-error"></div>
+        <div class="success-msg" id="send-success"></div>
+      </div>
     </div>
-
-    <div class="transfer-section">
-      <label for="toAddress">Перевести деньги (адрес):</label>
-      <input id="toAddress" type="text" placeholder="z1234567" maxlength="8" />
-      <label for="amount">Сумма перевода:</label>
-      <input id="amount" type="number" placeholder="Количество монет" min="1" />
-      <button id="btnTransfer">Отправить</button>
-      <div id="transferMessage"></div>
-    </div>
-
-    <button id="btnLogout" style="margin-top:20px; background:#b91c1c; color:#fff;">Выйти</button>
   </div>
+</main>
 
-  <footer>© 2025 Zenobank Demo</footer>
+<footer>
+  &copy; 2025 ZenoBank — Крипто-кошелек. Все права защищены.
+</footer>
 
 <script type="module">
-
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-  import { getDatabase, ref, set, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyBvTtAiVdBFL3D9S7p77o59Osqvr3g5o5w",
     authDomain: "idle-bank-ecd4c.firebaseapp.com",
@@ -154,261 +250,273 @@
     measurementId: "G-RL9Q74FR4K"
   };
 
-  // Инициализация Firebase
+  // Инициализация
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const database = getDatabase(app);
+  const db = getDatabase(app);
 
-  // Элементы
-  const navLogin = document.getElementById('navLogin');
-  const navRegister = document.getElementById('navRegister');
-  const loginForm = document.getElementById('loginForm');
-  const registerForm = document.getElementById('registerForm');
-  const profileSection = document.getElementById('profileSection');
+  // Элементы UI
+  const navButtons = document.getElementById('nav-buttons');
+  const navProfile = document.getElementById('nav-profile');
+  const userNameSpan = document.getElementById('user-name');
+  const userBalanceSpan = document.getElementById('user-balance');
+  const userAddressSpan = document.getElementById('user-address');
 
-  const loginEmail = document.getElementById('loginEmail');
-  const loginPassword = document.getElementById('loginPassword');
-  const btnLogin = document.getElementById('btnLogin');
-  const loginMessage = document.getElementById('loginMessage');
+  const loginContainer = document.getElementById('login-container');
+  const registerContainer = document.getElementById('register-container');
+  const profileContainer = document.getElementById('profile-container');
 
-  const regEmail = document.getElementById('regEmail');
-  const regUsername = document.getElementById('regUsername');
-  const regPassword = document.getElementById('regPassword');
-  const btnRegister = document.getElementById('btnRegister');
-  const registerMessage = document.getElementById('registerMessage');
+  // Логин поля
+  const loginEmail = document.getElementById('login-email');
+  const loginPassword = document.getElementById('login-password');
+  const loginBtn = document.getElementById('login-btn');
+  const loginError = document.getElementById('login-error');
 
-  const profileInfo = document.getElementById('profileInfo');
-  const btnLogout = document.getElementById('btnLogout');
-  const toAddressInput = document.getElementById('toAddress');
-  const amountInput = document.getElementById('amount');
-  const btnTransfer = document.getElementById('btnTransfer');
-  const transferMessage = document.getElementById('transferMessage');
+  // Регистрация поля
+  const regEmail = document.getElementById('reg-email');
+  const regUsername = document.getElementById('reg-username');
+  const regPassword = document.getElementById('reg-password');
+  const registerBtn = document.getElementById('register-btn');
+  const registerError = document.getElementById('register-error');
 
-  // Навигация между формами
-  navLogin.onclick = () => {
-    navLogin.classList.add('active');
-    navRegister.classList.remove('active');
-    loginForm.classList.remove('hidden');
-    registerForm.classList.add('hidden');
-    profileSection.classList.add('hidden');
+  // Профиль поля
+  const profileUsername = document.getElementById('profile-username');
+  const profileBalance = document.getElementById('profile-balance');
+  const profileAddress = document.getElementById('profile-address');
+
+  // Отправка
+  const sendAddress = document.getElementById('send-address');
+  const sendAmount = document.getElementById('send-amount');
+  const sendBtn = document.getElementById('send-btn');
+  const sendError = document.getElementById('send-error');
+  const sendSuccess = document.getElementById('send-success');
+
+  // Кнопки навигации
+  document.getElementById('show-login').addEventListener('click', () => {
+    loginContainer.classList.remove('hidden');
+    registerContainer.classList.add('hidden');
+    profileContainer.classList.add('hidden');
     clearMessages();
-  };
-  navRegister.onclick = () => {
-    navRegister.classList.add('active');
-    navLogin.classList.remove('active');
-    registerForm.classList.remove('hidden');
-    loginForm.classList.add('hidden');
-    profileSection.classList.add('hidden');
+  });
+
+  document.getElementById('show-register').addEventListener('click', () => {
+    registerContainer.classList.remove('hidden');
+    loginContainer.classList.add('hidden');
+    profileContainer.classList.add('hidden');
     clearMessages();
-  };
+  });
 
-  // Очистка сообщений
-  function clearMessages(){
-    loginMessage.textContent = '';
-    registerMessage.textContent = '';
-    transferMessage.textContent = '';
-  }
-
-  // Генерация адреса z + 7 цифр (из uid)
-  function generateAddress(uid){
-    let digits = uid.replace(/\D/g, '').slice(0,7);
-    while(digits.length < 7) digits += Math.floor(Math.random()*10);
-    return 'z' + digits;
-  }
-
-  // Сохранить данные пользователя в БД
-  async function saveUserData(user, username){
-    const address = generateAddress(user.uid);
-    await set(ref(database, 'users/' + user.uid), {
-      username: username,
-      email: user.email,
-      balance: 1000,   // стартовый баланс
-      address: address
-    });
-    return address;
-  }
-
-  // Получить данные пользователя
-  async function loadUserData(uid){
-    const snapshot = await get(ref(database, 'users/' + uid));
-    if(snapshot.exists()) return snapshot.val();
-    else return null;
-  }
-
-  // Найти пользователя по адресу
-  async function findUserByAddress(address){
-    const usersRef = ref(database, 'users');
-    const q = query(usersRef, orderByChild('address'), equalTo(address));
-    const snapshot = await get(q);
-    if(snapshot.exists()){
-      const val = snapshot.val();
-      // Вернем первого найденного
-      const key = Object.keys(val)[0];
-      return { uid: key, ...val[key] };
-    }
-    return null;
-  }
-
-  // Обновить баланс пользователя
-  async function updateBalance(uid, newBalance){
-    await set(ref(database, 'users/' + uid + '/balance'), newBalance);
-  }
-
-  // Отобразить профиль пользователя
-  function renderProfile(userData){
-    profileInfo.innerHTML = `
-      <strong>Никнейм:</strong> ${userData.username}<br>
-      <strong>Email:</strong> ${userData.email}<br>
-      <strong>Баланс:</strong> ${userData.balance.toFixed(2)} монет<br>
-      <strong>Адрес:</strong> <code>${userData.address}</code>
-    `;
-  }
-
-  // Вход
-  btnLogin.onclick = async () => {
-    clearMessages();
-    const email = loginEmail.value.trim();
-    const password = loginPassword.value.trim();
-    if(!email || !password){
-      loginMessage.textContent = 'Заполните все поля';
-      loginMessage.style.color = 'red';
-      return;
-    }
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const userData = await loadUserData(user.uid);
-      if(!userData){
-        loginMessage.textContent = 'Данные пользователя не найдены';
-        loginMessage.style.color = 'red';
-        return;
-      }
-      showProfile(userData);
-    } catch (err) {
-      loginMessage.textContent = `Ошибка входа: ${err.message}`;
-      loginMessage.style.color = 'red';
-    }
-  };
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    signOut(auth);
+  });
 
   // Регистрация
-  btnRegister.onclick = async () => {
+  registerBtn.addEventListener('click', async () => {
     clearMessages();
     const email = regEmail.value.trim();
     const username = regUsername.value.trim();
-    const password = regPassword.value.trim();
-    if(!email || !username || !password){
-      registerMessage.textContent = 'Заполните все поля';
-      registerMessage.style.color = 'red';
+    const password = regPassword.value;
+
+    if (!email || !username || !password) {
+      registerError.textContent = "Пожалуйста, заполните все поля.";
       return;
     }
+    if(username.length < 3) {
+      registerError.textContent = "Никнейм должен быть не менее 3 символов.";
+      return;
+    }
+    if(password.length < 6) {
+      registerError.textContent = "Пароль должен быть не менее 6 символов.";
+      return;
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const address = await saveUserData(user, username);
-      registerMessage.style.color = 'lightgreen';
-      registerMessage.textContent = `Успешно зарегистрированы! Ваш адрес: ${address}. Теперь войдите.`;
-      // переключиться на вход
-      navLogin.click();
+      await updateProfile(userCredential.user, { displayName: username });
+      // Создаем запись в базе с балансом и адресом
+      const userId = userCredential.user.uid;
+      const address = generateAddress(userId);
+      await set(ref(db, 'users/' + userId), {
+        username,
+        email,
+        balance: 1000,
+        address
+      });
+      clearInputs();
+      showProfile(userCredential.user);
     } catch (err) {
-      registerMessage.textContent = `Ошибка регистрации: ${err.message}`;
-      registerMessage.style.color = 'red';
-    }
-  };
-
-  // Показать профиль
-  function showProfile(userData){
-    loginForm.classList.add('hidden');
-    registerForm.classList.add('hidden');
-    profileSection.classList.remove('hidden');
-    navLogin.classList.remove('active');
-    navRegister.classList.remove('active');
-    renderProfile(userData);
-    clearMessages();
-  }
-
-  // Перевод денег
-  btnTransfer.onclick = async () => {
-    transferMessage.textContent = '';
-    transferMessage.style.color = 'red';
-
-    const toAddr = toAddressInput.value.trim();
-    const amount = parseFloat(amountInput.value);
-
-    if(!toAddr || toAddr.length !== 8 || !toAddr.startsWith('z')){
-      transferMessage.textContent = 'Введите корректный адрес получателя (пример: z1234567)';
-      return;
-    }
-    if(isNaN(amount) || amount <= 0){
-      transferMessage.textContent = 'Введите сумму перевода больше 0';
-      return;
-    }
-
-    const currentUser = auth.currentUser;
-    if(!currentUser){
-      transferMessage.textContent = 'Ошибка: пользователь не вошёл в систему';
-      return;
-    }
-
-    // Загрузим данные отправителя
-    const senderData = await loadUserData(currentUser.uid);
-    if(senderData.balance < amount){
-      transferMessage.textContent = 'Недостаточно средств для перевода';
-      return;
-    }
-
-    // Найдём получателя по адресу
-    const receiverData = await findUserByAddress(toAddr);
-    if(!receiverData){
-      transferMessage.textContent = 'Пользователь с таким адресом не найден';
-      return;
-    }
-    if(receiverData.uid === currentUser.uid){
-      transferMessage.textContent = 'Нельзя переводить самому себе';
-      return;
-    }
-
-    // Обновим балансы
-    try {
-      await updateBalance(currentUser.uid, senderData.balance - amount);
-      await updateBalance(receiverData.uid, receiverData.balance + amount);
-      transferMessage.style.color = 'lightgreen';
-      transferMessage.textContent = `Успешно переведено ${amount.toFixed(2)} монет пользователю ${receiverData.username}`;
-      // Обновим профиль
-      const updatedSenderData = await loadUserData(currentUser.uid);
-      renderProfile(updatedSenderData);
-      toAddressInput.value = '';
-      amountInput.value = '';
-    } catch(e) {
-      transferMessage.textContent = 'Ошибка при обновлении баланса: ' + e.message;
-    }
-  };
-
-  // Выход
-  btnLogout.onclick = async () => {
-    await signOut(auth);
-    profileSection.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-    navLogin.classList.add('active');
-  };
-
-  // Авто-подключение пользователя, если он уже залогинен
-  onAuthStateChanged(auth, async user => {
-    if(user){
-      const userData = await loadUserData(user.uid);
-      if(userData){
-        showProfile(userData);
-      } else {
-        // Если данные отсутствуют, выйти из аккаунта
-        await signOut(auth);
-        loginForm.classList.remove('hidden');
-        profileSection.classList.add('hidden');
-      }
-    } else {
-      loginForm.classList.remove('hidden');
-      profileSection.classList.add('hidden');
+      registerError.textContent = err.message;
     }
   });
 
+  // Вход
+  loginBtn.addEventListener('click', async () => {
+    clearMessages();
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value;
+
+    if (!email || !password) {
+      loginError.textContent = "Пожалуйста, заполните все поля.";
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      clearInputs();
+      showProfile(userCredential.user);
+    } catch (err) {
+      loginError.textContent = err.message;
+    }
+  });
+
+  // Отслеживаем состояние пользователя
+  onAuthStateChanged(auth, async (user) => {
+    clearMessages();
+    if (user) {
+      showProfile(user);
+    } else {
+      navButtons.classList.remove('hidden');
+      navProfile.classList.add('hidden');
+      loginContainer.classList.remove('hidden');
+      registerContainer.classList.add('hidden');
+      profileContainer.classList.add('hidden');
+      clearInputs();
+    }
+  });
+
+  // Показать профиль
+  async function showProfile(user) {
+    navButtons.classList.add('hidden');
+    navProfile.classList.remove('hidden');
+
+    userNameSpan.textContent = user.displayName || user.email;
+    // Получаем данные из базы
+    const dbRef = ref(db);
+    const snapshot = await get(child(dbRef, 'users/' + user.uid));
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      userBalanceSpan.textContent = formatCoins(data.balance);
+      userAddressSpan.textContent = data.address;
+
+      profileUsername.textContent = data.username;
+      profileBalance.textContent = formatCoins(data.balance);
+      profileAddress.textContent = data.address;
+      loginContainer.classList.add('hidden');
+      registerContainer.classList.add('hidden');
+      profileContainer.classList.remove('hidden');
+    } else {
+      // Если нет данных в базе - создать с дефолтом
+      const address = generateAddress(user.uid);
+      await set(ref(db, 'users/' + user.uid), {
+        username: user.displayName || "User",
+        email: user.email,
+        balance: 1000,
+        address
+      });
+      showProfile(user);
+    }
+  }
+
+  // Отправить деньги
+  sendBtn.addEventListener('click', async () => {
+    clearMessages();
+    const recipientAddress = sendAddress.value.trim();
+    const amount = parseFloat(sendAmount.value);
+    if (!recipientAddress.match(/^z\d{7}$/)) {
+      sendError.textContent = "Адрес должен быть формата z1234567 (7 цифр).";
+      return;
+    }
+    if (!amount || amount <= 0) {
+      sendError.textContent = "Введите корректную сумму.";
+      return;
+    }
+
+    const sender = auth.currentUser;
+    if (!sender) {
+      sendError.textContent = "Вы не вошли в систему.";
+      return;
+    }
+
+    // Получаем данные отправителя и получателя
+    const dbRef = ref(db);
+    try {
+      const senderSnap = await get(child(dbRef, 'users/' + sender.uid));
+      if (!senderSnap.exists()) {
+        sendError.textContent = "Отправитель не найден.";
+        return;
+      }
+      const senderData = senderSnap.val();
+      if (senderData.balance < amount) {
+        sendError.textContent = "Недостаточно средств.";
+        return;
+      }
+
+      // Найти пользователя с таким адресом
+      let recipientUid = null;
+      const usersSnap = await get(child(dbRef, 'users'));
+      if (!usersSnap.exists()) {
+        sendError.textContent = "Получатель не найден.";
+        return;
+      }
+      const usersData = usersSnap.val();
+      for (const uid in usersData) {
+        if (usersData[uid].address === recipientAddress) {
+          recipientUid = uid;
+          break;
+        }
+      }
+      if (!recipientUid) {
+        sendError.textContent = "Получатель не найден.";
+        return;
+      }
+
+      // Обновляем балансы
+      const updates = {};
+      updates['users/' + sender.uid + '/balance'] = senderData.balance - amount;
+
+      const recipientSnap = await get(child(dbRef, 'users/' + recipientUid));
+      const recipientData = recipientSnap.val();
+      updates['users/' + recipientUid + '/balance'] = (recipientData.balance || 0) + amount;
+
+      await update(ref(db), updates);
+
+      sendSuccess.textContent = `Успешно отправлено ${formatCoins(amount)} ₿ на адрес ${recipientAddress}`;
+      sendAddress.value = "";
+      sendAmount.value = "";
+      // Обновить профиль
+      showProfile(sender);
+    } catch (err) {
+      sendError.textContent = err.message;
+    }
+  });
+
+  function generateAddress(uid) {
+    // Формируем адрес z + 7 цифр, например z1234567
+    // Можно использовать часть uid, или рандомные цифры
+    // Здесь берем последние 7 цифр из uid хеша или рандом:
+    const digits = Math.floor(1000000 + Math.random() * 9000000);
+    return 'z' + digits.toString();
+  }
+
+  function formatCoins(num) {
+    return num.toFixed(2);
+  }
+
+  function clearInputs() {
+    loginEmail.value = "";
+    loginPassword.value = "";
+    regEmail.value = "";
+    regUsername.value = "";
+    regPassword.value = "";
+    sendAddress.value = "";
+    sendAmount.value = "";
+  }
+  function clearMessages() {
+    loginError.textContent = "";
+    registerError.textContent = "";
+    sendError.textContent = "";
+    sendSuccess.textContent = "";
+  }
 </script>
 
 </body>
