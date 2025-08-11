@@ -1,101 +1,110 @@
-@import url('https://fonts.googleapis.com/css2?family=PT+Sans&display=swap');
+* {
+  box-sizing: border-box;
+}
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: 'PT Sans', sans-serif;
-  background: linear-gradient(180deg, #3a3a3a, #1f1f1f);
-  color: #f5deb3;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(120deg, #89f7fe, #66a6ff);
+  margin: 0; padding: 20px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
   min-height: 100vh;
-  overflow-x: hidden;
+  color: #222;
 }
 
-#ad-banner {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  background: #000;
-  text-align: center;
-  z-index: 10000;
-  padding: 5px 0;
-}
-
-#ad-banner .ad-content {
-  position: relative;
-  max-width: 728px;
-  margin: auto;
-}
-
-.close-btn {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #fff;
-  font-size: 20px;
-  cursor: pointer;
-  user-select: none;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
-  text-align: center;
-}
-
-#close-ad:checked ~ #game {
-  margin-top: 20px;
-}
-
-#close-ad:not(:checked) ~ #game {
-  margin-top: 110px;
-}
-
-#game {
-  background: linear-gradient(145deg, #584d3d, #3f3521);
-  padding: 30px 40px;
-  border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.7);
-  max-width: 500px;
+main#app {
+  background: #fff;
+  max-width: 450px;
   width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  padding: 25px 30px;
+}
+
+h1, h2 {
   text-align: center;
-  transition: margin-top 0.3s ease;
+  margin-bottom: 15px;
+  color: #333;
 }
 
-h1 {
-  margin-bottom: 25px;
-  font-weight: 700;
-  text-shadow: 0 0 8px #ffd700;
+input {
+  width: 100%;
+  padding: 12px 10px;
+  font-size: 16px;
+  margin-bottom: 12px;
+  border: 2px solid #66a6ff;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
 }
 
-.stats {
-  display: flex;
-  justify-content: space-around;
-  font-size: 24px;
-  margin-bottom: 30px;
-  user-select: none;
+input:focus {
+  border-color: #1e90ff;
 }
 
 button {
-  background: #ffd700;
+  width: 100%;
+  background: #1e90ff;
   border: none;
-  color: #4b3a00;
-  font-size: 20px;
-  padding: 15px 30px;
-  border-radius: 12px;
+  color: white;
+  padding: 12px 0;
+  font-size: 18px;
+  border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 5px 15px #b38f00;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.3s ease;
+  margin-bottom: 20px;
 }
 
 button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px #e0c000;
+  background: #147ad6;
 }
 
-button:active {
-  transform: scale(0.95);
-  box-shadow: 0 3px 10px #a57f00;
+button:disabled {
+  background: #aaccee;
+  cursor: not-allowed;
+}
+
+.msg {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #d33;
+}
+
+#balance {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+#transfer {
+  margin-bottom: 30px;
+}
+
+#history-list {
+  list-style: none;
+  padding-left: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#history-list li {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+#history-list li:last-child {
+  border-bottom: none;
+}
+
+.logout {
+  background: #d9534f;
+}
+
+.logout:hover {
+  background: #b52b27;
 }
