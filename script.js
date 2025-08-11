@@ -1,178 +1,232 @@
-const registerBtn = document.getElementById('register-btn');
-const loginBtn = document.getElementById('login-btn');
-const regUsernameInput = document.getElementById('reg-username');
-const loginUsernameInput = document.getElementById('login-username');
-const authMsg = document.getElementById('auth-msg');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  runTransaction,
+  collection,
+  query,
+  where,
+  getDocs,
+  onSnapshot,
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-const authSection = document.getElementById('auth-section');
-const bankSection = document.getElementById('bank-section');
-const currentUserSpan = document.getElementById('current-user');
-const balanceAmount = document.getElementById('balance-amount');
-const transferToInput = document.getElementById('transfer-to');
-const transferAmountInput = document.getElementById('transfer-amount');
-const transferBtn = document.getElementById('transfer-btn');
-const transferMsg = document.getElementById('transfer-msg');
-const historyList = document.getElementById('history-list');
-const logoutBtn = document.getElementById('logout-btn');
+const firebaseConfig = {
+  apiKey: "AIzaSyBvTtAiVdBFL3D9S7p77o59Osqvr3g5o5w",
+  authDomain: "idle-bank-ecd4c.firebaseapp.com",
+  projectId: "idle-bank-ecd4c",
+  storageBucket: "idle-bank-ecd4c.appspot.com",
+  messagingSenderId: "620382532734",
+  appId: "1:620382532734:web:2bf17700e3ea279709142f",
+  measurementId: "G-RL9Q74FR4K",
+};
 
-const STORAGE_KEY = 'game_bank_users';
-const CURRENT_USER_KEY = 'game_bank_current_user';
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-let users = {};
-let currentUser = null;
+// DOM Elements
+const authSection = document.getElementById("auth-section");
+const appSection = document.getElementById("app-section");
 
-// Загрузка пользователей из localStorage
-function loadUsers() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  users = data ? JSON.parse(data) : {};
+const regForm = document.getElementById("register-form");
+const loginForm = document.getElementById("login-form");
+const authMessage = document.getElementById("auth-message");
+
+const userEmailElem = document.getElementById("user-email");
+const balanceElem = document.getElementById("balance");
+const logoutBtn = document.getElementById("logout-btn");
+
+const transferForm = document.getElementById("transfer-form");
+const recipientEmailInput = document.getElementById("recipient-email");
+const transferAmountInput = document.getElementById("transfer-amount");
+const appMessage = document.getElementById("app-message");
+
+const historyList = document.getElementById("history-list");
+
+// Helper функции для показа сообщений
+function showAuthMessage(msg, isError = false) {
+  authMessage.textContent = msg;
+  authMessage.style.color = isError ? "#f44336" : "#f9d34b";
 }
 
-// Сохранение пользователей в localStorage
-function saveUsers() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+function showAppMessage(msg, isError = false) {
+  appMessage.textContent = msg;
+  appMessage.style.color = isError ? "#f44336" : "#f9d34b";
+}
+
+// Создаем пользователя в Firestore
+async function createUserDoc(user) {
+  const userRef = doc(db, "users", user.uid);
+  await setDoc(userRef, {
+    email: user.email,
+    balance: 1000,
+    history: [],
+  });
 }
 
 // Регистрация
-registerBtn.addEventListener('click', () => {
-  const username = regUsernameInput.value.trim().toLowerCase();
-  if (!username) {
-    authMsg.textContent = 'Введите ник для регистрации';
-    return;
+regForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = regForm["reg-email"].value.trim();
+  const password = regForm["reg-password"].value;
+
+  showAuthMessage("Регистрация...");
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await createUserDoc(userCredential.user);
+    showAuthMessage("Регистрация успешна! Войдите в систему.");
+    regForm.reset();
+  } catch (e) {
+    showAuthMessage(e.message, true);
   }
-  if (users[username]) {
-    authMsg.textContent = 'Пользователь с таким ником уже существует';
-    return;
-  }
-  users[username] = {
-    balance: 100, // стартовый баланс
-    history: []
-  };
-  saveUsers();
-  authMsg.style.color = 'green';
-  authMsg.textContent = `Пользователь "${username}" зарегистрирован! Войдите.`;
-  regUsernameInput.value = '';
 });
 
 // Вход
-loginBtn.addEventListener('click', () => {
-  const username = loginUsernameInput.value.trim().toLowerCase();
-  if (!username) {
-    authMsg.textContent = 'Введите ник для входа';
-    return;
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = loginForm["login-email"].value.trim();
+  const password = loginForm["login-password"].value;
+
+  showAuthMessage("Вход...");
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    showAuthMessage("");
+    loginForm.reset();
+  } catch (e) {
+    showAuthMessage(e.message, true);
   }
-  if (!users[username]) {
-    authMsg.textContent = 'Пользователь не найден';
-    return;
-  }
-  currentUser = username;
-  localStorage.setItem(CURRENT_USER_KEY, currentUser);
-  authMsg.textContent = '';
-  showBank();
 });
 
-// Показать интерфейс банка
-function showBank() {
-  authSection.hidden = true;
-  bankSection.hidden = false;
-  currentUserSpan.textContent = currentUser;
-  updateBalanceUI();
-  updateHistoryUI();
-  transferMsg.textContent = '';
-  transferToInput.value = '';
-  transferAmountInput.value = '';
-}
+// Выход
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  appMessage.textContent = "";
+});
 
-// Обновить баланс
-function updateBalanceUI() {
-  balanceAmount.textContent = users[currentUser].balance.toFixed(2);
-}
+// Отслеживаем авторизацию
+let currentUser = null;
+let unsubscribeBalance = null;
 
-// Обновить историю
-function updateHistoryUI() {
-  historyList.innerHTML = '';
-  const history = users[currentUser].history;
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    authSection.style.display = "none";
+    appSection.style.display = "block";
+    userEmailElem.textContent = user.email;
+
+    // Подписка на обновления баланса и истории
+    if (unsubscribeBalance) unsubscribeBalance();
+
+    const userDocRef = doc(db, "users", user.uid);
+
+    unsubscribeBalance = onSnapshot(userDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        balanceElem.textContent = data.balance.toFixed(2);
+        renderHistory(data.history);
+      }
+    });
+  } else {
+    currentUser = null;
+    authSection.style.display = "block";
+    appSection.style.display = "none";
+    if (unsubscribeBalance) unsubscribeBalance();
+  }
+});
+
+// Отрисовка истории операций
+function renderHistory(history = []) {
+  historyList.innerHTML = "";
   if (history.length === 0) {
-    historyList.innerHTML = '<li>История пуста</li>';
+    historyList.innerHTML = "<li>История пуста</li>";
     return;
   }
   for (const entry of history.slice().reverse()) {
-    const li = document.createElement('li');
+    const li = document.createElement("li");
     li.textContent = entry;
     historyList.appendChild(li);
   }
 }
 
-// Отправка денег
-transferBtn.addEventListener('click', () => {
-  transferMsg.style.color = 'red';
-  const toUserRaw = transferToInput.value.trim().toLowerCase();
-  const amountRaw = transferAmountInput.value.trim();
+// Перевод денег с транзакцией
+transferForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  showAppMessage("");
 
-  if (!toUserRaw || !amountRaw) {
-    transferMsg.textContent = 'Введите ник и сумму';
-    return;
-  }
-  if (!users[toUserRaw]) {
-    transferMsg.textContent = 'Пользователь получатель не найден';
-    return;
-  }
-  if (toUserRaw === currentUser) {
-    transferMsg.textContent = 'Нельзя отправить деньги самому себе';
-    return;
-  }
+  const recipientEmail = recipientEmailInput.value.trim();
+  const amount = parseFloat(transferAmountInput.value);
 
-  const amount = parseFloat(amountRaw);
-  if (isNaN(amount) || amount <= 0) {
-    transferMsg.textContent = 'Введите корректную сумму';
+  if (!recipientEmail || !amount || amount <= 0) {
+    showAppMessage("Введите корректные данные", true);
+    return;
+  }
+  if (!currentUser) {
+    showAppMessage("Вы не авторизованы", true);
+    return;
+  }
+  if (recipientEmail === currentUser.email) {
+    showAppMessage("Нельзя переводить деньги самому себе", true);
     return;
   }
 
-  if (users[currentUser].balance < amount) {
-    transferMsg.textContent = 'Недостаточно средств';
-    return;
+  try {
+    await transferMoney(currentUser.uid, recipientEmail, amount);
+    showAppMessage(`Успешно отправлено ${amount.toFixed(2)} 🪙 пользователю ${recipientEmail}`);
+    transferForm.reset();
+  } catch (e) {
+    showAppMessage(e.message, true);
   }
-
-  // Выполняем перевод
-  users[currentUser].balance -= amount;
-  users[toUserRaw].balance += amount;
-
-  // Записываем в историю
-  const now = new Date();
-  const timeStr = now.toLocaleString();
-  const sentMsg = `Вы отправили ${amount.toFixed(2)} 🪙 пользователю "${toUserRaw}" (${timeStr})`;
-  const recMsg = `Вы получили ${amount.toFixed(2)} 🪙 от "${currentUser}" (${timeStr})`;
-
-  users[currentUser].history.push(sentMsg);
-  users[toUserRaw].history.push(recMsg);
-
-  saveUsers();
-  updateBalanceUI();
-  updateHistoryUI();
-
-  transferMsg.style.color = 'green';
-  transferMsg.textContent = 'Перевод выполнен успешно!';
-
-  transferToInput.value = '';
-  transferAmountInput.value = '';
 });
 
-// Выход
-logoutBtn.addEventListener('click', () => {
-  currentUser = null;
-  localStorage.removeItem(CURRENT_USER_KEY);
-  bankSection.hidden = true;
-  authSection.hidden = false;
-  authMsg.textContent = '';
-  regUsernameInput.value = '';
-  loginUsernameInput.value = '';
-});
+async function transferMoney(fromUID, toEmail, amount) {
+  const usersRef = collection(db, "users");
+  const q = query(usersRef, where("email", "==", toEmail));
+  const querySnapshot = await getDocs(q);
 
-// При загрузке страницы
-window.addEventListener('load', () => {
-  loadUsers();
-  const savedUser = localStorage.getItem(CURRENT_USER_KEY);
-  if (savedUser && users[savedUser]) {
-    currentUser = savedUser;
-    showBank();
-  }
-});
+  if (querySnapshot.empty) throw new Error("Пользователь получатель не найден");
+
+  const toDoc = querySnapshot.docs[0];
+  const toUID = toDoc.id;
+
+  const fromDocRef = doc(db, "users", fromUID);
+  const toDocRef = doc(db, "users", toUID);
+
+  await runTransaction(db, async (transaction) => {
+    const fromSnap = await transaction.get(fromDocRef);
+    const toSnap = await transaction.get(toDocRef);
+
+    const fromData = fromSnap.data();
+    const toData = toSnap.data();
+
+    if (fromData.balance < amount) {
+      throw new Error("Недостаточно средств");
+    }
+
+    transaction.update(fromDocRef, {
+      balance: fromData.balance - amount,
+      history: arrayUnion(
+        `Отправлено ${amount.toFixed(2)} 🪙 пользователю ${toEmail} (${new Date().toLocaleString()})`
+      ),
+    });
+
+    transaction.update(toDocRef, {
+      balance: toData.balance + amount,
+      history: arrayUnion(
+        `Получено ${amount.toFixed(2)} 🪙 от ${fromData.email} (${new Date().toLocaleString()})`
+      ),
+    });
+  });
+}
