@@ -2,59 +2,74 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Продвинутый Idle Bank</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XXXBank — Игровой кошелёк</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="container">
-    <section id="auth-section" class="card">
-      <h1>Добро пожаловать в Idle Bank</h1>
 
-      <form id="register-form" class="auth-form">
-        <h2>Регистрация</h2>
-        <input type="email" id="reg-email" placeholder="Email" required autocomplete="username" />
-        <input type="password" id="reg-password" placeholder="Пароль (min 6)" required autocomplete="new-password" minlength="6" />
-        <button type="submit">Зарегистрироваться</button>
-      </form>
+  <!-- Рекламный баннер -->
+  <div id="ad-banner">
+    <a href="https://acceptable.a-ads.com/2406373" target="_blank" rel="noopener noreferrer">
+      <img src="https://via.placeholder.com/728x90?text=Реклама+XXXBank" alt="Реклама XXXBank" />
+    </a>
+  </div>
 
-      <form id="login-form" class="auth-form">
-        <h2>Вход</h2>
-        <input type="email" id="login-email" placeholder="Email" required autocomplete="username" />
-        <input type="password" id="login-password" placeholder="Пароль" required autocomplete="current-password" />
-        <button type="submit">Войти</button>
-      </form>
+  <header>
+    <div class="logo">XXXBank</div>
+    <nav id="nav-auth">
+      <button id="btn-login">Log In</button>
+      <button id="btn-signup">Sign Up</button>
+    </nav>
+    <nav id="nav-user" class="hidden">
+      <span id="user-info"></span>
+      <span id="user-address" class="address"></span>
+      <button id="btn-logout">Log Out</button>
+    </nav>
+  </header>
 
-      <div id="auth-message" class="message"></div>
-    </section>
+  <main id="bank-section" class="hidden">
+    <h2>Ваш баланс: <span id="balance">0.00</span> монет</h2>
 
-    <section id="app-section" class="card" style="display:none;">
-      <div class="header">
-        <h2>Привет, <span id="user-email"></span></h2>
-        <button id="logout-btn" class="btn-logout">Выйти</button>
-      </div>
+    <form id="transfer-form">
+      <h3>Отправить деньги</h3>
+      <label>
+        Адрес получателя:<br />
+        <input type="text" id="recipient-address" required pattern="z\d{7}" placeholder="z1234567" />
+      </label>
+      <label>
+        Сумма:<br />
+        <input type="number" id="transfer-amount" required min="0.01" step="0.01" />
+      </label>
+      <button type="submit">Отправить</button>
+    </form>
 
-      <div class="balance">
-        Баланс: <span id="balance">0</span> 🪙
-      </div>
-
-      <section class="transfer-section">
-        <h3>Перевести деньги</h3>
-        <form id="transfer-form">
-          <input type="email" id="recipient-email" placeholder="Email получателя" required />
-          <input type="number" id="transfer-amount" min="1" placeholder="Сумма" required />
-          <button type="submit">Отправить</button>
-        </form>
-      </section>
-
-      <section class="history-section">
-        <h3>История операций</h3>
-        <ul id="history-list" class="history-list"></ul>
-      </section>
-
-      <div id="app-message" class="message"></div>
-    </section>
+    <div id="transfer-message"></div>
   </main>
+
+  <!-- Модалки логин/регистрация -->
+  <div id="modal-login" class="modal hidden">
+    <form id="form-login">
+      <h3>Вход</h3>
+      <label>Email:<br /><input type="email" id="login-email" required /></label>
+      <label>Пароль:<br /><input type="password" id="login-password" required /></label>
+      <button type="submit">Войти</button>
+      <div class="error" id="login-error"></div>
+      <button type="button" class="close-modal">Закрыть</button>
+    </form>
+  </div>
+
+  <div id="modal-signup" class="modal hidden">
+    <form id="form-signup">
+      <h3>Регистрация</h3>
+      <label>Имя:<br /><input type="text" id="signup-name" required /></label>
+      <label>Email:<br /><input type="email" id="signup-email" required /></label>
+      <label>Пароль:<br /><input type="password" id="signup-password" required /></label>
+      <button type="submit">Зарегистрироваться</button>
+      <div class="error" id="signup-error"></div>
+      <button type="button" class="close-modal">Закрыть</button>
+    </form>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>
