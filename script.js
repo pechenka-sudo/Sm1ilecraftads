@@ -1,152 +1,253 @@
-/* Общие стили */
-body {
-  margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #0f1724;
-  color: #e6eef6;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 12px 40px;
+// Firebase SDK import (используем ES6 модули)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  query,
+  where,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+// Ваша конфигурация Firebase (замени на свою)
+const firebaseConfig = {
+  apiKey: "AIzaSyBvTtAiVdBFL3D9S7p77o59Osqvr3g5o5w",
+  authDomain: "idle-bank-ecd4c.firebaseapp.com",
+  projectId: "idle-bank-ecd4c",
+  storageBucket: "idle-bank-ecd4c.appspot.com",
+  messagingSenderId: "620382532734",
+  appId: "1:620382532734:web:2bf17700e3ea279709142f",
+  measurementId: "G-RL9Q74FR4K"
+};
+
+// Инициализация Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// DOM элементы
+const navAuth = document.getElementById('nav-auth');
+const navUser = document.getElementById('nav-user');
+const userInfo = document.getElementById('user-info');
+const userAddress = document.getElementById('user-address');
+const btnLogout = document.getElementById('btn-logout');
+const bankSection = document.getElementById('bank-section');
+const balanceEl = document.getElementById('balance');
+
+const btnLogin = document.getElementById('btn-login');
+const btnSignup = document.getElementById('btn-signup');
+
+const modalLogin = document.getElementById('modal-login');
+const modalSignup = document.getElementById('modal-signup');
+
+const formLogin = document.getElementById('form-login');
+const formSignup = document.getElementById('form-signup');
+
+const loginError = document.getElementById('login-error');
+const signupError = document.getElementById('signup-error');
+
+const transferForm = document.getElementById('transfer-form');
+const recipientAddressInput = document.getElementById('recipient-address');
+const transferAmountInput = document.getElementById('transfer-amount');
+const transferMessage = document.getElementById('transfer-message');
+
+let currentUserData = null;
+
+// Генерация адреса z + 7 цифр
+function generateAddress() {
+  let addr = 'z';
+  for(let i = 0; i < 7; i++) {
+    addr += Math.floor(Math.random() * 10);
+  }
+  return addr;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-  color: #f6c85f;
+// Показ модалки
+function showModal(modal) {
+  modal.classList.remove('hidden');
+}
+// Скрытие модалки
+function closeModal() {
+  modalLogin.classList.add('hidden');
+  modalSignup.classList.add('hidden');
+  loginError.textContent = '';
+  signupError.textContent = '';
 }
 
-header {
-  width: 100%;
-  max-width: 700px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
+// Обновление UI в зависимости от пользователя
+function updateUI(user, userData) {
+  if(user) {
+    navAuth.classList.add('hidden');
+    navUser.classList.remove('hidden');
+    bankSection.classList.remove('hidden');
+    userInfo.textContent = `${userData.name} (${user.email})`;
+    userAddress.textContent = `Адрес: ${userData.address}`;
+    balanceEl.textContent = userData.balance.toFixed(2);
+  } else {
+    navAuth.classList.remove('hidden');
+    navUser.classList.add('hidden');
+    bankSection.classList.add('hidden');
+    userInfo.textContent = '';
+    userAddress.textContent = '';
+    balanceEl.textContent = '0.00';
+  }
 }
 
-nav button {
-  background: #f6c85f;
-  border: none;
-  color: #071018;
-  font-weight: 700;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-left: 8px;
-  transition: background-color 0.3s ease;
+// Загрузка данных пользователя из Firestore
+async function loadUserData(uid) {
+  const docRef = doc(db, "users", uid);
+  const docSnap = await getDoc(docRef);
+  if(docSnap.exists()) {
+    return docSnap.data();
+  } else {
+    // Если нет, создаём дефолт
+    const address = generateAddress();
+    const newUserData = { name: 'Игрок', balance: 100, address };
+    await setDoc(docRef, newUserData);
+    return newUserData;
+  }
 }
 
-nav button:hover {
-  background-color: #d4b54c;
-}
+// Обработчики кнопок показа модалок
+btnLogin.addEventListener('click', () => showModal(modalLogin));
+btnSignup.addEventListener('click', () => showModal(modalSignup));
 
-nav.hidden {
-  display: none;
-}
+// Закрытие модалок
+document.querySelectorAll('.close-modal').forEach(btn => {
+  btn.addEventListener('click', closeModal);
+});
 
-.address {
-  margin-left: 12px;
-  font-family: monospace;
-  font-weight: 600;
-  color: #f6c85f;
-}
+// Логин
+formLogin.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginError.textContent = '';
+  const email = formLogin['login-email'].value;
+  const password = formLogin['login-password'].value;
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    currentUserData = await loadUserData(cred.user.uid);
+    updateUI(cred.user, currentUserData);
+    closeModal();
+    formLogin.reset();
+  } catch(err) {
+    loginError.textContent = 'Ошибка входа: ' + err.message;
+  }
+});
 
-#bank-section {
-  max-width: 700px;
-  width: 100%;
-  background: #0b1220;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 8px 30px rgba(2,6,23,0.6);
-  margin-top: 10px;
-}
+// Регистрация
+formSignup.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  signupError.textContent = '';
+  const email = formSignup['signup-email'].value;
+  const password = formSignup['signup-password'].value;
+  const name = formSignup['signup-name'].value.trim() || 'Игрок';
+  const address = generateAddress();
 
-h2, h3 {
-  margin-top: 0;
-}
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    currentUserData = { name, balance: 100, address };
+    await setDoc(doc(db, "users", cred.user.uid), currentUserData);
+    updateUI(cred.user, currentUserData);
+    closeModal();
+    formSignup.reset();
+  } catch(err) {
+    signupError.textContent = 'Ошибка регистрации: ' + err.message;
+  }
+});
 
-form label {
-  display: block;
-  margin-bottom: 12px;
-  font-size: 14px;
-}
+// Логаут
+btnLogout.addEventListener('click', async () => {
+  await signOut(auth);
+  currentUserData = null;
+  updateUI(null, null);
+});
 
-form input[type="text"],
-form input[type="email"],
-form input[type="password"],
-form input[type="number"] {
-  width: 100%;
-  padding: 8px 10px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: none;
-  background: #1c2639;
-  color: #e6eef6;
-  box-sizing: border-box;
-}
+// Следим за изменением авторизации
+onAuthStateChanged(auth, async (user) => {
+  if(user) {
+    currentUserData = await loadUserData(user.uid);
+    updateUI(user, currentUserData);
+  } else {
+    currentUserData = null;
+    updateUI(null, null);
+  }
+});
 
-form button[type="submit"] {
-  margin-top: 12px;
-  width: 100%;
-}
+// Отправка денег
+transferForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  transferMessage.textContent = '';
 
-#error-message, .error {
-  color: #ff6b6b;
-  margin-top: 6px;
-  font-size: 14px;
-}
+  if(!currentUserData) {
+    transferMessage.textContent = 'Пожалуйста, войдите в аккаунт';
+    transferMessage.style.color = '#ff6b6b';
+    return;
+  }
 
-/* Модальные окна */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(7, 20, 36, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
+  const recipientAddress = recipientAddressInput.value.trim();
+  const amount = parseFloat(transferAmountInput.value);
 
-.modal form {
-  background: #0b1220;
-  padding: 24px;
-  border-radius: 12px;
-  width: 320px;
-  box-shadow: 0 8px 30px rgba(2,6,23,0.8);
-}
+  if (!recipientAddress.match(/^z\d{7}$/)) {
+    transferMessage.textContent = 'Адрес получателя должен быть формата z1234567';
+    transferMessage.style.color = '#ff6b6b';
+    return;
+  }
+  if (isNaN(amount) || amount <= 0) {
+    transferMessage.textContent = 'Введите корректную сумму для перевода';
+    transferMessage.style.color = '#ff6b6b';
+    return;
+  }
 
-.modal.hidden {
-  display: none;
-}
+  if (amount > currentUserData.balance) {
+    transferMessage.textContent = 'Недостаточно средств';
+    transferMessage.style.color = '#ff6b6b';
+    return;
+  }
 
-.close-modal {
-  margin-top: 16px;
-  background: transparent;
-  border: 1px solid #f6c85f;
-  color: #f6c85f;
-  cursor: pointer;
-  border-radius: 6px;
-}
+  try {
+    // Ищем пользователя по адресу
+    const q = query(collection(db, "users"), where("address", "==", recipientAddress));
+    const querySnapshot = await getDocs(q);
 
-/* Реклама */
-#ad-banner {
-  width: 100%;
-  background: #222;
-  text-align: center;
-  padding: 10px 0;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-  margin-bottom: 10px;
-}
+    if(querySnapshot.empty) {
+      transferMessage.textContent = 'Пользователь с таким адресом не найден';
+      transferMessage.style.color = '#ff6b6b';
+      return;
+    }
 
-#ad-banner img {
-  max-width: 728px;
-  width: 90%;
-  height: auto;
-  cursor: pointer;
-  border-radius: 6px;
-}
+    const recipientDoc = querySnapshot.docs[0];
+    const recipientData = recipientDoc.data();
+
+    // Обновляем балансы в транзакции
+    const senderRef = doc(db, "users", auth.currentUser.uid);
+    const recipientRef = recipientDoc.ref;
+
+    // Без транзакций, простая реализация (в реальном приложении надо использовать транзакции для атомарности)
+    await updateDoc(senderRef, { balance: currentUserData.balance - amount });
+    await updateDoc(recipientRef, { balance: (recipientData.balance || 0) + amount });
+
+    // Обновляем локально
+    currentUserData.balance -= amount;
+    updateUI(auth.currentUser, currentUserData);
+
+    transferMessage.textContent = `Успешно отправлено ${amount.toFixed(2)} монет пользователю ${recipientAddress}`;
+    transferMessage.style.color = '#8bc34a';
+
+    // Очистка формы
+    transferForm.reset();
+
+  } catch(err) {
+    transferMessage.textContent = 'Ошибка при переводе: ' + err.message;
+    transferMessage.style.color = '#ff6b6b';
+  }
+});
